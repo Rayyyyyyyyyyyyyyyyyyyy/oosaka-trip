@@ -45,6 +45,7 @@ import {
   WarningAmber,
 } from "@mui/icons-material";
 import { days, initialTodos, reservations, trip } from "./tripData";
+import { OpenAIApiKeySettings } from "./features/trip-import/OpenAIApiKeySettings";
 import "./index.css";
 
 const theme = createTheme({
@@ -939,6 +940,7 @@ function App() {
               <br />
               保留臨時起意的空間。
             </Typography>
+            <OpenAIApiKeySettings />
           </Box>
         </Drawer>
         {mobile && (
