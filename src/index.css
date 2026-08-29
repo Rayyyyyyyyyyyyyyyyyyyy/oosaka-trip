@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-trip-paper: #f3f1eb;
+  --color-trip-surface: #fbfaf6;
+  --color-trip-ink: #20221f;
+  --color-trip-muted: #74766f;
+  --color-trip-moss: #536358;
+  --color-trip-acid: #d9ef6f;
+  --color-trip-orange: #e36f4d;
+  --font-serif-jp: "Noto Serif TC", ui-serif, serif;
+  --font-sans-jp: "Noto Sans TC", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply m-0 bg-trip-paper text-trip-ink antialiased;
+  }
+  button,
+  a {
+    @apply touch-manipulation;
+  }
+}

@@ -1,10 +1,14 @@
-<!doctype html><html lang="zh-Hant"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f3f1eb">
-<meta name="description" content="2026 大阪、宇治、奈良六日旅行計畫"><title>大阪・宇治・奈良｜2026 Trip</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head>
-<body><header class="trip-header"><div><p class="kicker">JAPAN · 2026</p><h1>大阪・宇治・奈良</h1><p>SEP 10 — SEP 15 <span>·</span> 6 DAYS</p></div><button class="icon-button" id="menuButton" aria-label="開啟旅程選單">•••</button></header>
-<nav class="date-rail" aria-label="選擇旅行日期"><div class="date-rail-inner"><div class="month">SEP <span>2026</span></div><div class="dates" id="dateButtons"></div></div></nav>
-<main id="app" tabindex="-1"></main>
-<nav class="bottom-nav" aria-label="頁面導覽"><button data-view="overview"><span>⌘</span>Overview</button><button data-view="day"><span>☷</span>Day</button><button data-view="map"><span>⌖</span>Map</button></nav>
-<dialog id="drawer" class="drawer"><div class="drawer-head"><p>TRIP MENU</p><button class="icon-button" id="closeDrawer" aria-label="關閉">×</button></div><nav><button data-drawer-view="overview">Trip Overview <span>01</span></button><button data-drawer-view="reservations">Reservations <span>02</span></button><button data-drawer-view="flights">Flight <span>03</span></button><a href="https://www.google.com/maps/search/?api=1&query=Aloft%20Osaka%20Dojima%20Osaka" target="_blank" rel="noreferrer">Hotel <span>↗</span></a></nav><p class="drawer-note">不要把旅行排成 KPI。<br>保留臨時起意的空間。</p></dialog><script src="script.js"></script></body></html>
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#536358" />
+    <meta name="description" content="2026 大阪、宇治、奈良六日旅行 Viewer" />
+    <title>大阪・宇治・奈良｜Trip Runtime</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
