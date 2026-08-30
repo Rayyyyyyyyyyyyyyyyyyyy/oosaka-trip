@@ -1,0 +1,13 @@
+{
+  "fixtureVersion": 1,
+  "source": "../../../temp/md-files/osaka_uji_nara_2026-09-10_to_09-15.md",
+  "canonicalFixture": "../osakaTrip.js",
+  "role": "Golden Markdown semantic benchmark",
+  "criticalFacts": [
+    "Trip range is 2026-09-10 through 2026-09-15 in Asia/Tokyo.",
+    "JX822 arrives at KIX on 2026-09-10 and JX821 returns on 2026-09-15.",
+    "Aloft Osaka Dojima is the supported accommodation.",
+    "Uji, Nara and Universal Studios Japan remain distinct dated days.",
+    "Optional and flexible source intent remains non-mandatory."
+  ]
+}

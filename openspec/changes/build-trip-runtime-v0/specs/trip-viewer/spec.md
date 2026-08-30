@@ -3,8 +3,8 @@
 ### Requirement: Canonical-data-only renderer
 The result viewer SHALL consume only validated CanonicalTrip data and runtime selectors and SHALL NOT parse source files, extracted blocks, or raw model responses inside UI components.
 
-#### Scenario: Different source formats produce equivalent trips
-- **WHEN** a PDF-derived and XLSX-derived canonical trip contain equivalent trip semantics
+#### Scenario: Different supported inputs produce equivalent trips
+- **WHEN** a Markdown-derived and canonical-JSON-imported trip contain equivalent trip semantics
 - **THEN** the viewer renders them through the same components and interaction model
 
 ### Requirement: Derived presentation model
@@ -15,7 +15,7 @@ Locale labels, day numbering, grouping, phase, Today selection, NOW/NEXT, leave-
 - **THEN** Today and runtime labels are recomputed from canonical dates without mutating the stored trip
 
 ### Requirement: Existing core viewer experience
-The generalized viewer SHALL provide Overview, Today, Day, Reservations, sticky Date Rail, trip menu, mobile-first layout, and before/during/after trip phase behavior consistent with the Osaka Golden Result through the existing MUI interaction primitives and Tailwind layout/token system rather than a parallel component system.
+The generalized viewer SHALL provide Overview, Today, Day, Reservations, sticky Date Rail, trip menu, mobile-first layout, and before/during/after runtime-phase behavior consistent with the Osaka Golden Result through the existing MUI interaction primitives and Tailwind layout/token system rather than a parallel component system.
 
 #### Scenario: Traveler opens trip during its date range
 - **WHEN** the current time in the trip timezone falls on a trip date

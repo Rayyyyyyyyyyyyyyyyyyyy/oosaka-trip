@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useReducer, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import {
@@ -11,6 +11,10 @@ import {
   Chip,
   Container,
   Divider,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Drawer,
   IconButton,
   LinearProgress,
@@ -44,9 +48,22 @@ import {
   CheckCircle,
   WarningAmber,
 } from "@mui/icons-material";
-import { days, initialTodos, reservations, trip } from "./tripData";
-import { OpenAIApiKeySettings } from "./features/trip-import/OpenAIApiKeySettings";
+import { canonicalTrip, days, initialTodos, reservations, trip } from "./tripData";
+import {
+  getTripRuntime,
+  minutesUntilTrip,
+  selectRuntimeCandidates,
+} from "./domain/trip/runtime";
+import { useTripTodos } from "./features/trip-viewer/useTripTodos";
+import {
+  importReducer,
+  viewingImportState,
+} from "./features/trip-import/importReducer";
+import { clearAllLocalData } from "./storage/clearLocalData";
+import { CanonicalTripControls } from "./features/trip-import/CanonicalTripControls";
 import "./index.css";
+
+const TripImportWorkflow = React.lazy(() => import("./features/trip-import/TripImportWorkflow").then((module) => ({ default: module.TripImportWorkflow })));
 
 const theme = createTheme({
   palette: {
@@ -98,32 +115,6 @@ const mapUrl = (q) =>
 const mapHref = (place) =>
   place?.startsWith("https://") ? place : mapUrl(place);
 
-function getTokyoRuntime() {
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Tokyo",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    })
-      .formatToParts(new Date())
-      .filter((part) => part.type !== "literal")
-      .map((part) => [part.type, part.value]),
-  );
-  const date = `${parts.year}-${parts.month}-${parts.day}`;
-  const minutes = Number(parts.hour) * 60 + Number(parts.minute);
-  const phase =
-    date < days[0].date
-      ? "before"
-      : date > days.at(-1).date
-        ? "after"
-        : "during";
-  return { date, minutes, phase };
-}
-
 function TripStatusView({ runtime }) {
   if (runtime.phase === "after")
     return (
@@ -132,16 +123,14 @@ function TripStatusView({ runtime }) {
           TRIP COMPLETED
         </Typography>
         <Typography variant="h1" fontSize={{ xs: 38, md: 56 }} mt={2}>
-          大阪・宇治・奈良
+          {trip.title}
         </Typography>
         <Typography color="text.secondary" mt={2}>
           旅程已結束，完整行程仍可從 Day 查看。
         </Typography>
       </Paper>
     );
-  const start = new Date(`${days[0].date}T00:00:00+09:00`);
-  const today = new Date(`${runtime.date}T00:00:00+09:00`);
-  const daysToGo = Math.max(0, Math.ceil((start - today) / 86400000));
+  const daysToGo = minutesUntilTrip(canonicalTrip, runtime);
   return (
     <Paper className="border-y border-trip-ink bg-trip-surface p-6 md:p-10">
       <Typography variant="overline" color="secondary">
@@ -331,6 +320,7 @@ function EventCard({ event }) {
                 startIcon={<Directions />}
                 href={mapHref(event.map)}
                 target="_blank"
+                rel="noreferrer"
               >
                 Directions
               </Button>
@@ -341,6 +331,7 @@ function EventCard({ event }) {
                 color="secondary"
                 href={event.tabelog}
                 target="_blank"
+                rel="noreferrer"
               >
                 食べログ
               </Button>
@@ -394,8 +385,9 @@ function DayView({ day }) {
           <Button
             sx={{ mt: 2 }}
             startIcon={<Map />}
-            href={mapUrl("Universal Studios Japan")}
+            href={day.events[0].map}
             target="_blank"
+            rel="noreferrer"
           >
             Open map
           </Button>
@@ -444,7 +436,17 @@ function DayView({ day }) {
 }
 
 function TodayView({ day, onFullDay, runtime }) {
-  if (day.date !== "2026-09-12")
+  const runtimeSelection = selectRuntimeCandidates(
+    day.canonicalDay,
+    runtime.minutes,
+  );
+  const current = day.events.find(
+    (event) => event.id === runtimeSelection.current?.id,
+  );
+  const next = day.events.find(
+    (event) => event.id === runtimeSelection.next?.id,
+  );
+  if (!current && !next)
     return (
       <>
         <Typography variant="overline" color="secondary">
@@ -457,21 +459,6 @@ function TodayView({ day, onFullDay, runtime }) {
         <DayView day={day} />
       </>
     );
-  const titledEvents = day.events.filter((event) => event.title);
-  let current = titledEvents[0];
-  let next = titledEvents[1];
-  if (day.date === "2026-09-12") {
-    if (runtime.minutes < 10 * 60 + 30) {
-      current = null;
-      next = titledEvents[0];
-    } else if (runtime.minutes < 19 * 60 + 30) {
-      current = titledEvents[1];
-      next = titledEvents[2];
-    } else {
-      current = titledEvents[2];
-      next = null;
-    }
-  }
   return (
     <>
       <Typography variant="overline" color="secondary">
@@ -500,10 +487,10 @@ function TodayView({ day, onFullDay, runtime }) {
           <EventIcon type={current?.type || "transport"} />
           <Box>
             <Typography variant="h2" fontSize={25}>
-              {current?.title || "尚未開始今天的行程"}
+              {current?.title || `${day.title}自由行程`}
             </Typography>
             <Typography color="text.secondary" variant="body2" mt={0.5}>
-              {current?.meta}
+              {current?.meta || "時間彈性，因此不推測目前所在的景點。"}
             </Typography>
             {current?.note && (
               <Typography
@@ -547,7 +534,7 @@ function TodayView({ day, onFullDay, runtime }) {
                   />
                 )}
               </Box>
-              {day.leaveBy && next && (
+              {day.suggestedDeparture && next && (
                 <Paper
                   sx={{
                     p: 1.5,
@@ -557,14 +544,14 @@ function TodayView({ day, onFullDay, runtime }) {
                   }}
                 >
                   <Typography variant="overline" fontSize={9}>
-                    LEAVE BEFORE
+                    SUGGESTED DEPARTURE
                   </Typography>
                   <Typography
                     color="#d9ef6f"
                     fontFamily="ui-monospace"
                     fontWeight={700}
                   >
-                    {day.leaveBy}
+                    {day.suggestedDeparture}
                   </Typography>
                 </Paper>
               )}
@@ -578,6 +565,7 @@ function TodayView({ day, onFullDay, runtime }) {
               startIcon={<Directions />}
               href={mapHref(next.map)}
               target="_blank"
+              rel="noreferrer"
             >
               Directions
             </Button>
@@ -593,52 +581,52 @@ function Overview({ onDay }) {
   return (
     <>
       <Typography variant="overline" color="secondary">
-        YOUR TRIP · 6 DAYS
+        YOUR TRIP · {trip.days} {trip.days === 1 ? "DAY" : "DAYS"}
       </Typography>
       <Typography variant="h1" fontSize={{ xs: 43, md: 68 }} mt={1}>
-        大阪・宇治
-        <br />
-        <Box component="span" color="primary.main">
-          奈良
-        </Box>
+        {trip.title}
       </Typography>
       <Stack divider={<Divider />} mt={5}>
-        <Box py={3}>
-          <Typography variant="overline" color="secondary">
-            FLIGHTS
-          </Typography>
-          {trip.flights.map((f) => (
-            <Stack
-              key={f.code}
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-              mt={2}
-            >
-              <Typography width={70} fontFamily="ui-monospace">
-                {f.code}
-              </Typography>
-              <Box>
-                <Typography fontFamily="ui-monospace" fontWeight={700}>
-                  {f.route}
+        {trip.flights.length > 0 && (
+          <Box py={3}>
+            <Typography variant="overline" color="secondary">
+              FLIGHTS
+            </Typography>
+            {trip.flights.map((f) => (
+              <Stack
+                key={f.code}
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                mt={2}
+              >
+                <Typography width={70} fontFamily="ui-monospace">
+                  {f.code}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {f.date}
-                </Typography>
-              </Box>
-            </Stack>
-          ))}
-        </Box>
-        <Box py={3}>
-          <Typography variant="overline" color="secondary">
-            STAY
-          </Typography>
-          <Typography variant="h3" fontSize={20} mt={2}>
-            Aloft Osaka Dojima
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            SEP 10 → SEP 15 · DOJIMA, OSAKA
-          </Typography>
-        </Box>
+                <Box>
+                  <Typography fontFamily="ui-monospace" fontWeight={700}>
+                    {f.route}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {f.date}
+                  </Typography>
+                </Box>
+              </Stack>
+            ))}
+          </Box>
+        )}
+        {trip.stay && (
+          <Box py={3}>
+            <Typography variant="overline" color="secondary">
+              STAY
+            </Typography>
+            <Typography variant="h3" fontSize={20} mt={2}>
+              {trip.stay.title}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {trip.stay.period} · {trip.stay.details}
+            </Typography>
+          </Box>
+        )}
         <Box py={3}>
           <Typography variant="overline" color="secondary">
             ITINERARY
@@ -666,7 +654,7 @@ function Overview({ onDay }) {
                   {d.dow}
                 </Typography>
                 <Typography>
-                  {d.title} · {d.subtitle}
+                  {d.title}{d.subtitle ? ` · ${d.subtitle}` : ""}
                 </Typography>
               </ListItemButton>
             ))}
@@ -677,38 +665,21 @@ function Overview({ onDay }) {
   );
 }
 
-function useTodos() {
-  const [todos, setTodos] = useState(() => {
-    try {
-      const saved = localStorage.getItem("osaka-trip-todos");
-      return saved ? JSON.parse(saved) : initialTodos;
-    } catch {
-      return initialTodos;
-    }
-  });
-  const toggle = (id) =>
-    setTodos((current) => {
-      const next = current.map((todo) =>
-        todo.id === id ? { ...todo, done: !todo.done } : todo,
-      );
-      localStorage.setItem("osaka-trip-todos", JSON.stringify(next));
-      return next;
-    });
-  return [todos, toggle];
-}
 function Reservations() {
-  const [todos, toggleTodo] = useTodos();
+  const [todos, toggleTodo] = useTripTodos(canonicalTrip.id, initialTodos);
   const completed = todos.filter((t) => t.done).length;
   const todoState = Object.fromEntries(todos.map((t) => [t.id, t.done]));
   return (
     <>
-      <Typography variant="overline" color="secondary">
-        BEFORE YOU GO
-      </Typography>
-      <Typography variant="h1" fontSize={{ xs: 38, md: 56 }} mt={1}>
-        Trip checklist
-      </Typography>
-      <Paper
+      {todos.length > 0 && (
+        <>
+          <Typography variant="overline" color="secondary">
+            BEFORE YOU GO
+          </Typography>
+          <Typography variant="h1" fontSize={{ xs: 38, md: 56 }} mt={1}>
+            Trip checklist
+          </Typography>
+          <Paper
         className="mt-8 border-y border-trip-ink bg-trip-surface p-4 md:p-6"
         sx={{
           mt: 4,
@@ -717,7 +688,7 @@ function Reservations() {
           borderBottom: 1,
           borderColor: "text.primary",
         }}
-      >
+          >
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -763,14 +734,18 @@ function Reservations() {
             </ListItemButton>
           ))}
         </List>
-      </Paper>
-      <Typography variant="overline" color="secondary" display="block" mt={6}>
-        RESERVATIONS
-      </Typography>
-      <Typography variant="h2" fontSize={30} mt={1}>
-        預約與票券
-      </Typography>
-      <Stack mt={3} divider={<Divider />}>
+          </Paper>
+        </>
+      )}
+      {reservations.length > 0 ? (
+        <>
+          <Typography variant="overline" color="secondary" display="block" mt={6}>
+            RESERVATIONS
+          </Typography>
+          <Typography variant="h2" fontSize={30} mt={1}>
+            預約與票券
+          </Typography>
+          <Stack mt={3} divider={<Divider />}>
         {reservations.map((r) => {
           const done = todoState[r.todoId];
           const status = done
@@ -802,14 +777,23 @@ function Reservations() {
             </Stack>
           );
         })}
-      </Stack>
+          </Stack>
+        </>
+      ) : (
+        <Typography color="text.secondary">這趟旅行沒有已確認的預約或票券。</Typography>
+      )}
     </>
   );
 }
 
 function App() {
   const mobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [runtime, setRuntime] = useState(getTokyoRuntime);
+  const [importState, dispatchImport] = useReducer(
+    importReducer,
+    canonicalTrip.id,
+    viewingImportState,
+  );
+  const [runtime, setRuntime] = useState(() => getTripRuntime(canonicalTrip));
   const [view, setView] = useState(
     runtime.phase === "during" ? "today" : "overview",
   );
@@ -817,9 +801,11 @@ function App() {
     runtime.phase === "during" ? runtime.date : days[0].date,
   );
   const [drawer, setDrawer] = useState(false);
+  const [importLoaded, setImportLoaded] = useState(false);
+  const [clearDialog, setClearDialog] = useState(false);
   useEffect(() => {
     const refreshRuntime = () => {
-      const nextRuntime = getTokyoRuntime();
+      const nextRuntime = getTripRuntime(canonicalTrip);
       setRuntime(nextRuntime);
       if (view === "today" && nextRuntime.phase === "during")
         setDate(nextRuntime.date);
@@ -847,6 +833,7 @@ function App() {
         minHeight="100vh"
         bgcolor="background.default"
         pb={mobile ? 9 : 3}
+        data-import-state={importState.status}
       >
         <AppBar
           className="bg-trip-moss"
@@ -858,18 +845,21 @@ function App() {
             <Stack direction="row" justifyContent="space-between" py={3}>
               <Box>
                 <Typography variant="overline" color="#d9ef6f">
-                  JAPAN · 2026
+                  {trip.countryCode === "JP" ? "JAPAN" : trip.countryCode} · {trip.year}
                 </Typography>
                 <Typography variant="h2" fontSize={25} color="white">
                   {trip.title}
                 </Typography>
                 <Typography variant="caption" color="rgba(255,255,255,.7)">
-                  {trip.period} · 6 DAYS
+                  {trip.period} · {trip.days} {trip.days === 1 ? "DAY" : "DAYS"}
                 </Typography>
               </Box>
               <IconButton
                 color="inherit"
-                onClick={() => setDrawer(true)}
+                onClick={() => {
+                  setImportLoaded(true);
+                  setDrawer(true);
+                }}
                 aria-label="開啟選單"
               >
                 <MoreHoriz />
@@ -940,9 +930,40 @@ function App() {
               <br />
               保留臨時起意的空間。
             </Typography>
-            <OpenAIApiKeySettings />
+            <CanonicalTripControls trip={canonicalTrip} />
+            {importLoaded && (
+              <React.Suspense fallback={<Typography role="status">正在載入匯入工具…</Typography>}>
+                <TripImportWorkflow state={importState} dispatch={dispatchImport} />
+              </React.Suspense>
+            )}
+            <Button
+              color="error"
+              variant="outlined"
+              sx={{ mt: 4 }}
+              onClick={() => setClearDialog(true)}
+            >
+              清除本機 Trip Runtime 資料
+            </Button>
           </Box>
         </Drawer>
+        <Dialog open={clearDialog} onClose={() => setClearDialog(false)}>
+          <DialogTitle>清除這個瀏覽器中的資料？</DialogTitle>
+          <DialogContent>
+            這會移除已匯入的旅程、修改、checklist 狀態與個人 OpenAI API key。大阪內建行程仍可繼續使用。
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setClearDialog(false)}>取消</Button>
+            <Button
+              color="error"
+              onClick={async () => {
+                await clearAllLocalData();
+                window.location.reload();
+              }}
+            >
+              確認清除
+            </Button>
+          </DialogActions>
+        </Dialog>
         {mobile && (
           <Paper
             className="fixed inset-x-0 bottom-0 z-20 border-t border-black/10 bg-trip-surface/95 backdrop-blur-xl"

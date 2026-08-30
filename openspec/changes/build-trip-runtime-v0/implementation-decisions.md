@@ -23,9 +23,9 @@
 - Risk disclosure: encryption protects against casual/plaintext `localStorage` inspection but not same-origin malicious JavaScript that can invoke the application's decrypt path. The UI warns about scripts, extensions, or an origin compromise and recommends a restricted project key with spend limits.
 - Key exclusions: never include the key in CanonicalTrip, CanonicalExport, ReviewSession, logs, analytics, errors, URLs, screenshots, or source fixtures.
 
-## 1.3 V0 limits and format matrix
+## 1.3 V0 limits and deferred-format boundary
 
-Limits are intentionally conservative for a one-file, one-request V0:
+Limits are intentionally conservative for a one-Markdown-file, one-request V0. PDF and raster limits below are retained as later research inputs, not commitments in this change:
 
 | Limit | Value |
 | --- | ---: |
@@ -43,13 +43,10 @@ Format expectations:
 
 | Format | V0 level | Notes |
 | --- | --- | --- |
-| TXT, Markdown, CSV | Supported | Deterministic local extraction; semantic interpretation still requires Review. |
-| XLSX | Supported for fixtures | Row timelines and calendar grids; formulas/macros are never executed. |
-| DOCX | Supported for fixtures | Headings, paragraphs, tables, order, and links. |
-| Readable text PDF | Supported for fixtures | Text, position, page, and link evidence. |
-| Visual/scan PDF | Best effort | May require visual processing or stop with a quality warning. |
-| JPG, JPEG, PNG | Best effort | Detailed itineraries, calendars, and mind maps may require substantial Review. |
-| Encrypted, corrupt, macro-bearing, or over-limit input | Unsupported | Rejected before semantic parsing. |
+| Markdown | Supported | Deterministic local extraction; semantic interpretation still requires Review. |
+| XLSX | Deferred to the post-Hosted V0.2 narrow slice | The next source change targets only one/few-sheet travel tables, not universal spreadsheet understanding. |
+| TXT, CSV, DOCX, PDF, JPG, JPEG, PNG, mind maps, advanced spreadsheets | Deferred to later evidence-driven changes | Research evidence informs the model, but no extractor ships in this change. |
+| Empty, unreadable, corrupt, or over-limit Markdown | Unsupported | Rejected before semantic parsing. |
 
 ## 1.4 Interrupted ReviewSession and privacy
 
@@ -74,3 +71,19 @@ Format expectations:
 - OpenAI model comparison: https://developers.openai.com/api/docs/models/compare
 - OpenAI Responses API: https://developers.openai.com/api/reference/cli/resources/responses/methods/create
 - OpenAI API authentication: https://developers.openai.com/api/reference/overview
+
+## 2.8 Canonical Osaka viewer verification (2026-08-30)
+
+- The Osaka source now passes the versioned CanonicalTrip runtime schema and is projected into the existing viewer through selectors.
+- Mobile 390 x 844 and desktop 1440 x 1000 retained Overview, Date Rail, day content, exact source links, optional sections, and responsive navigation with no browser-console errors.
+- Checklist state migrated from `osaka-trip-todos` to the trip-scoped key while keeping the legacy key synchronized; the linked USJ reservation survived reload.
+- Automated suite: 22 tests passed. Production build passed.
+- Initial production JavaScript is 520.27 kB (160.95 kB gzip), up from 431.45 kB (135.77 kB gzip) because Zod is now on the canonical validation path. The dedicated bundle-hardening task will assess whether schema loading should be split without weakening boundary validation.
+
+## 2.9 Roadmap and stranger-acceptance gate (2026-08-30)
+
+- V0 is the Understand + Trust layer: Source -> UnifiedSourceDocument -> ParsedTripDraft -> evidence-backed Review -> Confirmed CanonicalTrip.
+- The actual unfamiliar Markdown is a hard acceptance gate, not a later roadmap item. Before Hosted implementation, the pre-Review draft has zero missing or invented critical events, zero unsupported exact critical facts, and surfaces every fixture-annotated ambiguity.
+- Sanitized fixtures retain draft, findings, corrections, and confirmed output so Parser Quality is distinguishable from Review Recovery Quality. Production ReviewSession evidence remains memory-only and is never retained for benchmarking.
+- Hosted Delivery is the next independent change, `hosted-trip-delivery-lite`; this change adds no hosted URL, publication, recovery, expiry, account, or server task.
+- After Hosted Delivery, the first structured-format slice is a narrow Spreadsheet Travel Table change. Calendar grids, formula-heavy models, cross-sheet reconciliation, and operational workbooks remain later evidence-driven work.

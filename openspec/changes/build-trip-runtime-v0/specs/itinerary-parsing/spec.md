@@ -19,11 +19,19 @@ The parser MUST preserve exact, range, approximate, part-of-day, all-day, and un
 - **THEN** the draft preserves the flexible wording and does not invent a start time
 
 ### Requirement: Distinguish itinerary from supporting content
-The parser SHALL classify research, recommendations, references, packing, budget, expense, shopping, opening-hours tables, and candidate-place material without automatically converting each mentioned place into an itinerary event.
+The parser SHALL classify research, recommendations, references, background, runtime instructions, operational procedures, runtime-deferred decisions, reference-freshness statements, explicit intra-source references, packing, budget, expense, shopping, opening-hours tables, and candidate-place material without automatically converting mentioned places or procedural steps into itinerary events.
 
 #### Scenario: Research-heavy document
 - **WHEN** a document contains a daily route plus nearby restaurant research and opening hours
 - **THEN** the daily route is parsed as itinerary intent while unsupported research items remain classified reference blocks or review candidates
+
+#### Scenario: Contextual instruction or deferred choice
+- **WHEN** a document contains ticket-machine steps, an app procedure, an explicit reference to another section, or a choice intentionally deferred until runtime
+- **THEN** the parser preserves the block's role, wording, relation, freshness statement when present, and source trace for Review without inventing timeline events, completing the procedure, or resolving the choice
+
+#### Scenario: Supporting content may be travel-critical
+- **WHEN** a fixture annotates supporting content as necessary to execute the trip
+- **THEN** the parser surfaces it for Review and the acceptance result cannot count it as safely ignored merely because it is not an itinerary event
 
 ### Requirement: Source provenance
 Every parsed semantic entity and material field SHALL retain one or more source references inside the active ReviewSession, including source identifier, locator, and sufficient source text or visual reference for review. Confirmation SHALL reduce those references to stable provenance identifiers and locators; CanonicalTrip SHALL NOT retain raw excerpts, visual payloads, complete extracted blocks, or transient confidence evidence.

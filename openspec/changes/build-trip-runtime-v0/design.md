@@ -1,6 +1,6 @@
 ## Context
 
-The repository is a React 19/Vite 7 JavaScript application whose Osaka-specific `tripData.js` drives a proven mobile-first result viewer. The V0 gap is the trustworthy conversion of a second traveler's existing itinerary file into data that can drive that same viewer. Real fixtures in `temp/Odata/` show that extension alone does not describe structure: spreadsheets may be row timelines or calendar grids, PDFs may mix plans with research, and images may be tables, weekly calendars, infographics, or mind maps.
+The repository is a React 19/Vite 7 JavaScript application whose Osaka-specific `tripData.js` drives a proven mobile-first result viewer. The V0 gap is the trustworthy conversion of a second traveler's existing Markdown itinerary into data that can drive that same viewer. The 22-sample research corpus informs a conservative Markdown V0 model; sample count is not participant count, and the corresponding source files live under `temp/Odata/`. After gated Hosted Delivery, V0.2 is limited to narrow Spreadsheet Travel Table ingestion; advanced spreadsheet, structured/visual extraction, and still-evolving cross-format canonical relationships remain later evidence-driven concerns.
 
 The current implementation is concentrated in `src/main.jsx`, and `src/tripData.js` mixes trip facts with Osaka-specific presentation fields. V0 therefore needs an incremental boundary extraction, not a second UI, a framework rewrite, or a speculative generic platform. This personal deployment follows the local AI Travel reference: each traveler supplies their own OpenAI API key, the static app encrypts it for that browser, stores the ciphertext in `localStorage` and a non-extractable wrapping key in IndexedDB, and the browser calls OpenAI directly. No shared project credential or parser backend is deployed.
 
@@ -8,8 +8,8 @@ The current implementation is concentrated in `src/main.jsx`, and `src/tripData.
 
 **Goals:**
 
-- Support one TXT, Markdown, CSV, DOCX, XLSX, readable PDF, JPG, JPEG, or PNG source per trip.
-- Convert each format into a small, traceable source representation before semantic parsing.
+- Support one Markdown source per trip.
+- Convert Markdown into a small, traceable source representation before semantic parsing.
 - Preserve uncertainty, flexibility, alternatives, exact source links, and non-itinerary content without inventing precision.
 - Separate transient review evidence, incomplete parser output, confirmed trip facts, and presentation-only state.
 - Reuse and generalize the existing Osaka viewer without a parallel component system.
@@ -23,6 +23,7 @@ The current implementation is concentrated in `src/main.jsx`, and `src/tripData.
 - AI planning, recommendations, optimization, automatic replanning, booking, expenses, packing, or social features.
 - Live weather, flight, transit, location, or opening-status APIs.
 - Guaranteed understanding of every scan, mind map, encrypted file, macro workbook, or visually complex document.
+- TXT, CSV, XLSX, DOCX, PDF, screenshot, image, and mind-map extraction.
 - A TypeScript migration, global state library, workflow framework, provider registry, repository layer, or universal document AST.
 
 ## Decisions
@@ -44,13 +45,17 @@ The exact filenames may evolve, but ownership SHALL follow these boundaries. Reu
 
 Alternative considered: redesign the application around a comprehensive platform architecture first. Rejected because it delays the second-user path and creates abstractions without evidence.
 
-### 2. Use a minimal UnifiedSourceDocument behind lazy format adapters
+### 2. Use a minimal Markdown-backed UnifiedSourceDocument
 
-Format adapters SHALL return a provider-neutral `UnifiedSourceDocument` made from a small discriminated set of ordered blocks such as `text`, `table`, and `visual`. A block carries its content or structured cells, a stable locator, source links, and only the layout hints demonstrated necessary by fixtures.
+The Markdown adapter SHALL return a provider-neutral `UnifiedSourceDocument` made from a small discriminated set of ordered `text` and `table` blocks. A block carries its content or structured cells, a stable locator, source links, and only the structural hints demonstrated necessary by Markdown fixtures.
 
-TXT/Markdown/CSV use lightweight adapters. DOCX, XLSX, PDF, OCR, and image processing dependencies SHALL be loaded only when their format is selected so the existing viewer's initial bundle does not absorb every extractor. The contract expands from corpus evidence; V0 does not pre-model every possible document structure.
+V0 does not add DOCX, XLSX, PDF, OCR, or image-processing dependencies. The contract may expand in later input changes from corpus evidence, beginning with a narrow Spreadsheet Travel Table slice; this change does not pre-model every possible document structure.
 
-Alternative considered: convert everything to plain text. Rejected because it loses calendar-grid position, spreadsheet inheritance, PDF grouping, links, and mind-map relationships.
+Samples #19 and #20 add evidence for formulas versus calculated values, counterfactual comparisons, multi-day resource economics, region/city phases, phase-scoped participants, source-day versus calendar-date grouping, `24:00` source notation, meal-block candidate layers, weak emoji markup, and event-level costs. Samples #21 and #22 add contextual operational instructions, digital workflows, explicit intra-workbook references, option-specific downstream actions, runtime-deferred decisions, reference freshness, and time-sensitive supporting knowledge.
+
+The research `Core / Preserve / Defer` layer is a cross-format product-modeling decision aid. It does not automatically enlarge this Markdown-only implementation whenever an XLSX workbook reveals a new semantic. V0 classifies supporting content, preserves its source trace during Review, and avoids turning it into itinerary events. It does not add a generic knowledge-base UI, procedure state machine, or freshness verifier; standalone runtime-instruction persistence remains a later evidence-driven design decision unless a Markdown acceptance fixture proves it is necessary for the stranger gate. The V0 runtime schema is therefore not a frozen cross-format canonical model.
+
+Alternative considered: convert Markdown to plain text. Rejected because it loses headings, tables, checkboxes, links, and source order that provide useful parsing evidence.
 
 ### 3. Keep ReviewSession, CanonicalTrip, and CanonicalExport distinct
 
@@ -65,7 +70,7 @@ source bytes -> ReviewSession -> CanonicalTrip -> CanonicalExport
 - `CanonicalTrip` owns only confirmed travel facts, traveler overrides, stable entity IDs, and stable provenance identifiers/locators. It MUST NOT contain source bytes, full extracted blocks, raw excerpts, model responses, or transient confidence/evidence objects.
 - `CanonicalExport` is created by an explicit allowlist projection from `CanonicalTrip`. It excludes source evidence, provider details, transient review state, and browser-only metadata.
 
-Non-itinerary research blocks remain in `ReviewSession` or draft classification. They do not enlarge `CanonicalTrip` merely because the parser saw them.
+Non-itinerary research, recommendation, background, runtime-instruction, operational-procedure, reference-freshness, and other supporting blocks remain in `ReviewSession` or draft classification. They retain source trace and MUST be surfaced rather than silently converted into events, but they do not enlarge `CanonicalTrip` merely because the parser saw them. If a Markdown acceptance fixture shows that dropping a supporting block would omit critical travel intent, the change must resolve that gap explicitly before passing the stranger gate rather than silently treating the block as non-critical.
 
 ### 4. Separate canonical facts from presentation derivation
 
@@ -123,23 +128,34 @@ Implementation proceeds in independently runnable slices:
 
 1. Osaka `CanonicalTrip` -> generalized existing viewer.
 2. Canonical JSON import/export -> persistence -> same viewer.
-3. TXT/Markdown/CSV -> extraction -> browser OpenAI request -> Review -> same viewer.
-4. XLSX through the same path.
-5. DOCX and readable/visual PDF through the same path.
-6. Images and visual documents through the same path.
+3. Markdown -> extraction -> browser OpenAI request -> Review -> same viewer.
 
-Tests are added at stable boundaries: runtime schemas and validators, format adapters, selectors/runtime derivation, reducer transitions, storage/import-export, and user-critical flows. Corpus fixtures measure critical-field accuracy, false/missing events, hallucination, correction count, renderability, and time to viewer. Chunking or new abstractions are added only after measurements show the simple path is insufficient.
+Tests are added at stable boundaries: runtime schemas and validators, the Markdown adapter, selectors/runtime derivation, reducer transitions, storage/import-export, and user-critical flows. Markdown fixtures measure critical-field accuracy, false/missing events, hallucination, correction count, renderability, and time to viewer. Chunking or new abstractions are added only after measurements show the simple path is insufficient.
+
+### 12. Gate Hosted Delivery on stranger-Markdown trust
+
+This change ends at a locally confirmed and renderable CanonicalTrip. It MUST NOT add PublishedTripSnapshot, TripPublication, hosted URL, recovery-secret, expiry, account, or hosting implementation. Those belong to the separate `hosted-trip-delivery-lite` change and may be designed or spiked without blocking this change.
+
+Before Hosted Delivery implementation begins, an unfamiliar Markdown itinerary MUST pass an annotated acceptance gate: the original pre-Review draft has zero missing critical events, zero invented critical events, zero unsupported exact critical dates/times/places, every fixture-annotated ambiguity is surfaced for Review, canonical validation passes after correction, and the result renders through the same viewer.
+
+Sanitized benchmark artifacts preserve four distinct layers for evaluation:
+
+```text
+ParsedTripDraft
+Validation / Review findings
+User corrections
+Confirmed CanonicalTrip
+```
+
+Parser Quality compares the original draft with semantic fixture assertions; Recovery Quality compares the confirmed trip with the same assertions. Production ReviewSession data remains memory-only and is never retained as benchmark material.
 
 ## Risks / Trade-offs
 
-- **[Visual extraction quality varies]** -> Preserve locators in `ReviewSession`, expose uncertainty, and fail or review rather than fabricate.
 - **[The canonical model becomes a copy of the UI or source AST]** -> Enforce schema exclusions and derive presentation through selectors.
 - **[Async results overwrite newer work]** -> Use session/request identity, cancellation, and reducer transition tests.
 - **[Model output is valid JSON but semantically wrong]** -> Run deterministic validation, require source-backed review, and weight critical-field fixtures.
 - **[Private content leaks through persistence or export]** -> Separate ReviewSession from CanonicalTrip and use an allowlisted CanonicalExport projection.
-- **[Heavy extractors slow the existing viewer]** -> Lazy-load format adapters and inspect production chunks.
 - **[Browser-local API keys can be exposed by XSS, malicious extensions, or a compromised origin]** -> Make BYOK risk explicit, never ship a shared key, keep the app dependency surface small, use a dedicated storage key and clear action, and recommend restricted project keys with spend limits.
-- **[All listed formats imply equal quality]** -> Publish a support matrix and best-effort/failure states based on structure quality.
 
 ## Migration Plan
 
@@ -147,14 +163,15 @@ Tests are added at stable boundaries: runtime schemas and validators, format ada
 2. Move domain validation, selectors, runtime derivation, and viewer components behind feature boundaries while running the Osaka fixture through `CanonicalTrip`.
 3. Add the concrete browser storage module plus filtered canonical JSON import/export.
 4. Add the reducer-owned import/review shell and complete the text-format vertical slice.
-5. Add lazy XLSX, DOCX, PDF, and visual adapters one slice at a time, validating each against its representative fixture and full user flow.
-6. Enable real model transmission only after explicit BYOK disclosure, local-key controls, request limits, `store: false`, error sanitization, and no-log/no-export checks are verified.
-7. Run second-user, corpus, accessibility, mobile/desktop, reload/clear, production build, bundle, and console acceptance.
+5. Enable real model transmission only after explicit BYOK disclosure, local-key controls, request limits, `store: false`, error sanitization, and no-log/no-export checks are verified.
+6. Run second-user Markdown, accessibility, mobile/desktop, reload/clear, production build, bundle, and console acceptance.
 
 Rollback keeps the canonical Osaka fixture and old checklist key readable. Upload/parse entry points can be disabled without removing the static viewer.
 
-## Open Questions
+## Resolved Decisions
 
-- None. The user selected `gpt-5.6-sol` with reasoning effort `high` and direct browser BYOK; no parser host is in V0.
-- What file-size, page, image, extraction, request-time, and retry limits fit the V0 cost and latency envelope?
-- Should an interrupted `ReviewSession` survive a tab close, or should privacy take precedence and require re-upload?
+- The first parser uses `gpt-5.6-sol` with reasoning effort `high` and direct browser BYOK; no parser host is in V0.
+- Markdown source, extraction, request, timeout, and retry limits are defined in `implementation-decisions.md`.
+- `ReviewSession` is memory-only and is discarded on reload, navigation away, or tab close.
+- Stranger-Markdown acceptance is the hard prerequisite for Hosted Delivery; Hosted implementation remains a separate change.
+- Parser Quality and Review Recovery Quality are measured separately from sanitized benchmark artifacts, while production review evidence retains the memory-only policy.

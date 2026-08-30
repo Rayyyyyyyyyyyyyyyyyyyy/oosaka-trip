@@ -1,0 +1,26 @@
+{
+  "fixtureVersion": 1,
+  "source": "seoul-stranger.md",
+  "provenance": "Sanitized, format-preserving copy of the unfamiliar second-user source; only the unsupported .txt filename was changed to .md for the Markdown V0 upload gate.",
+  "criticalDayIntents": [
+    { "sourceLabel": "週二", "mustMention": ["聖水", "工作", "逛街"] },
+    { "sourceLabel": "週三", "mustMention": ["首爾林", "工作", "朋友"] },
+    { "sourceLabel": "週四", "mustMention": ["景福宮", "北村", "安國", "仁寺洞", "益善洞"] },
+    { "sourceLabel": "週五", "mustMention": ["民宿", "工作", "廣藏", "明洞"] },
+    { "sourceLabel": "週六", "mustMention": ["朋友", "醬蟹", "醫美"] },
+    { "sourceLabel": "週日", "mustMention": ["延南", "弘大", "漢南", "機場"] }
+  ],
+  "annotatedAmbiguities": [
+    "No exact calendar dates or year are supplied for any weekday.",
+    "The Sunday text contains an explicit alternative: 延南／弘大 or 漢南.",
+    "The airport is not identified by name or code.",
+    "No exact event times are supplied."
+  ],
+  "unsupportedCriticalExactFacts": ["calendar dates", "year", "event times", "airport name or code"],
+  "acceptance": {
+    "missingCriticalEvents": 0,
+    "inventedCriticalEvents": 0,
+    "unsupportedExactCriticalFacts": 0,
+    "allAnnotatedAmbiguitiesSurfaced": true
+  }
+}
