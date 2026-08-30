@@ -46,6 +46,10 @@ The import flow SHALL use one locally owned reducer to represent idle, validatin
 - **WHEN** the traveler starts a new import before a previous asynchronous request returns
 - **THEN** the earlier response cannot replace or mutate the active ReviewSession
 
+#### Scenario: Replacement review is abandoned
+- **WHEN** the traveler cancels or leaves Review while an older confirmed trip exists
+- **THEN** the transient candidate is discarded and the older confirmed trip remains the active Viewer trip
+
 ### Requirement: Accessible and responsive review
 Review SHALL use the same responsive component tree at mobile and desktop widths and SHALL provide announced state changes, focus management, programmatically associated field errors, and keyboard-operable correction and confirmation controls.
 

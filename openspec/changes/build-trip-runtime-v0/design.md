@@ -2,7 +2,7 @@
 
 The repository is a React 19/Vite 7 JavaScript application whose Osaka-specific `tripData.js` drives a proven mobile-first result viewer. The V0 gap is the trustworthy conversion of a second traveler's existing Markdown itinerary into data that can drive that same viewer. The 22-sample research corpus informs a conservative Markdown V0 model; sample count is not participant count, and the corresponding source files live under `temp/Odata/`. After gated Hosted Delivery, V0.2 is limited to narrow Spreadsheet Travel Table ingestion; advanced spreadsheet, structured/visual extraction, and still-evolving cross-format canonical relationships remain later evidence-driven concerns.
 
-The current implementation is concentrated in `src/main.jsx`, and `src/tripData.js` mixes trip facts with Osaka-specific presentation fields. V0 therefore needs an incremental boundary extraction, not a second UI, a framework rewrite, or a speculative generic platform. This personal deployment follows the local AI Travel reference: each traveler supplies their own OpenAI API key, the static app encrypts it for that browser, stores the ciphertext in `localStorage` and a non-extractable wrapping key in IndexedDB, and the browser calls OpenAI directly. No shared project credential or parser backend is deployed.
+The current implementation is concentrated in `src/main.jsx`, and `src/tripData.js` mixes trip facts with Osaka-specific presentation fields. It also treats the bundled Osaka fixture as an active trip, so the application has no real empty/setup entry state. V0 therefore needs an incremental boundary extraction, not a second viewer, a framework rewrite, or a speculative generic platform. This personal deployment follows the local AI Travel setup pattern: each traveler selects OpenAI or Gemini and supplies that provider's own API key, the static app encrypts each credential separately for that browser, and the browser calls the selected provider directly. No shared project credential or parser backend is deployed.
 
 ## Goals / Non-Goals
 
@@ -13,6 +13,9 @@ The current implementation is concentrated in `src/main.jsx`, and `src/tripData.
 - Preserve uncertainty, flexibility, alternatives, exact source links, and non-itinerary content without inventing precision.
 - Separate transient review evidence, incomplete parser output, confirmed trip facts, and presentation-only state.
 - Reuse and generalize the existing Osaka viewer without a parallel component system.
+- Add a Home-first setup state when no confirmed local trip exists and route a confirmed trip directly to the existing Viewer.
+- Preserve the current confirmed trip throughout a replacement import until a new reviewed trip is successfully confirmed.
+- Support two concrete browser parse adapters, OpenAI and Gemini, through one provider-neutral draft contract.
 - Keep original bytes, extracted blocks, and review excerpts out of durable backend and confirmed-trip storage.
 - Keep confirmed trip facts, traveler overrides, and checklist state usable after reload in the same browser.
 - Deliver in vertical slices so every milestone produces a runnable end-to-end result.
@@ -24,7 +27,7 @@ The current implementation is concentrated in `src/main.jsx`, and `src/tripData.
 - Live weather, flight, transit, location, or opening-status APIs.
 - Guaranteed understanding of every scan, mind map, encrypted file, macro workbook, or visually complex document.
 - TXT, CSV, XLSX, DOCX, PDF, screenshot, image, and mind-map extraction.
-- A TypeScript migration, global state library, workflow framework, provider registry, repository layer, or universal document AST.
+- A TypeScript migration, global state library, workflow framework, extensible provider plugin/registry, repository layer, or universal document AST.
 
 ## Decisions
 
@@ -38,10 +41,12 @@ src/features/trip-viewer/        existing Overview, Today, Day, Reservations UI
 src/features/trip-import/        upload UI, import reducer, format adapters
 src/features/trip-review/        evidence-backed corrections and review reducer
 src/services/parseTrip.js        browser-facing parse service
+src/services/providers/          concrete OpenAI and Gemini transport adapters
 src/storage/tripStorage.js       versioned local persistence and migration
+src/storage/apiKeyStorage.js     provider-scoped encrypted credential storage
 ```
 
-The exact filenames may evolve, but ownership SHALL follow these boundaries. Reusable MUI-based components are composed before new abstractions are introduced. No `shared/` dumping ground, repository interface, factory, manager, provider registry, or global store is added until a second concrete use case justifies it.
+The exact filenames may evolve, but ownership SHALL follow these boundaries. Reusable MUI-based components are composed before new abstractions are introduced. OpenAI and Gemini now justify one small explicit provider dispatch boundary, but not a `shared/` dumping ground, repository interface, factory hierarchy, manager, plugin registry, or global store.
 
 Alternative considered: redesign the application around a comprehensive platform architecture first. Rejected because it delays the second-user path and creates abstractions without evidence.
 
@@ -78,7 +83,16 @@ Canonical data SHALL represent domain facts such as exact or imprecise timing, d
 
 `CanonicalTrip` MUST NOT store Osaka-era presentation fields such as `n`, `dow`, `period`, formatted month/day labels, day counts, `runtime: now`, `runtime: next`, `special`, or MUI/Tailwind state. `all_day` remains a valid domain timing kind; an all-day visual treatment is derived. Runtime phase, Today selection, NOW/NEXT, display labels, grouped sections, and empty-state choices are recomputed from canonical facts and the confirmed trip timezone.
 
-### 5. Own the import workflow with a local reducer
+### 5. Own Home, replacement import, and Review with local state
+
+Application entry derives from persisted domain state rather than the bundled fallback:
+
+```text
+no confirmed trip -> Home
+confirmed trip    -> Viewer
+```
+
+Home owns provider/key setup, Markdown upload, canonical JSON import, upload-format/privacy guidance, and a reserved optional-form region whose fields remain non-required until separately approved. The bundled Osaka trip is available only through an explicit sample/fallback action.
 
 The import feature SHALL own one explicit reducer-driven state machine:
 
@@ -86,17 +100,21 @@ The import feature SHALL own one explicit reducer-driven state machine:
 idle -> validating -> extracting -> parsing -> reviewing -> confirming -> viewing
 ```
 
-Recoverable error states retain a safe return or retry path. The reducer also handles cancellation and ignores stale async results by request/session identity. Review form state stays in the review feature, and viewer/checklist state stays at the closest shared owner. Derived data is computed rather than synchronized into duplicate state.
+Recoverable error states retain a safe return or retry path. When replacement import begins from Viewer, the current confirmed trip remains stored and renderable; cancellation, validation/extraction/provider failure, or stale results cannot replace it. Only successful Review confirmation atomically saves the candidate as the new active trip. The reducer also handles cancellation and ignores stale async results by request/session identity. Review form state stays in the review feature, and viewer/checklist state stays at the closest shared owner. Derived data is computed rather than synchronized into duplicate state.
 
 Alternative considered: introduce XState or a global state store. Rejected because one local reducer and feature context cover the V0 workflow with less coupling.
 
-### 6. Use one browser parse service and personal BYOK
+### 6. Use one parse contract with concrete OpenAI and Gemini BYOK adapters
 
-The browser calls `parseTrip(request)` through `src/services/parseTrip.js`. The traveler supplies a personal OpenAI API key through an explicit settings input. AES-GCM ciphertext is stored under one repository-owned `localStorage` key and its non-extractable wrapping key is stored in IndexedDB. The value is decrypted only at request time, sent only as bearer authentication to `https://api.openai.com/v1/responses`, and excluded from exports, application logs, analytics, error messages, and trip domain state.
+The browser calls provider-neutral `parseTrip(request)` through `src/services/parseTrip.js`. A small explicit switch selects an OpenAI or Gemini adapter; both reuse one conservative parser instruction, structured-output semantics, ParsedTripDraft runtime schema, deterministic validation, and Review path. Provider-specific request/response translation and transient usage/error normalization stay inside the adapter boundary. Provider choice, model identifiers, and response metadata are excluded from CanonicalTrip and CanonicalExport.
 
-The first implementation uses `gpt-5.6-sol` with reasoning effort `high` and one OpenAI adapter. No factory, registry, or plugin system is introduced until another provider is actually implemented. The UI states that browser storage is not a secure secret vault, links to key creation, recommends a restricted project key with a spend limit, and provides a dedicated clear-key action.
+The OpenAI adapter uses the Responses API at `https://api.openai.com/v1/responses`, bearer authentication, pinned `gpt-5.6-sol` with reasoning effort `high`, and `store: false` on every request. The Gemini adapter uses `generateContent` at `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent`, the `x-goog-api-key` header rather than a query parameter, pinned `gemini-3.7-flash`, and structured JSON output. Both responses are untrusted until decoded and validated by the shared ParsedTripDraft runtime schema. A pinned model changes only after parser-quality and stranger-Markdown acceptance fixtures are rerun.
 
-Uploaded content is always untrusted data, never parser instructions. Request bodies, source bytes, prompts containing itinerary content, and model responses are not written to application storage, analytics, or logs. `store: false` is sent on every Responses request.
+The traveler supplies a personal key for the selected provider through Home. Existing OpenAI ciphertext remains under `trip-runtime-openai-api-key`; Gemini ciphertext uses `trip-runtime-gemini-api-key`; the last provider selection is stored separately from trip data. Each ciphertext has an isolated non-extractable wrapping-key record in IndexedDB, is decrypted only for its own adapter at request time, and has its own masked status and clear action. One provider's missing key never falls back to the other's. Clearing trip data does not silently clear credentials; provider-key clearing and clear-all require separately scoped confirmation.
+
+The UI states that browser storage is not a secure secret vault, links to each provider's official key creation page, recommends restricted credentials and spend controls where supported, and shows provider-specific processing/data-control disclosure before transmission. Canonical JSON is the V0 cross-computer portability path; keys remain device-local and must be supplied separately in each browser.
+
+Uploaded content is always untrusted data, never parser instructions. Request bodies, source bytes, prompts containing itinerary content, API keys, and model responses are not written to application storage, analytics, URLs, or logs.
 
 ### 7. Stay in JavaScript with runtime schemas and JSDoc
 
@@ -128,7 +146,7 @@ Implementation proceeds in independently runnable slices:
 
 1. Osaka `CanonicalTrip` -> generalized existing viewer.
 2. Canonical JSON import/export -> persistence -> same viewer.
-3. Markdown -> extraction -> browser OpenAI request -> Review -> same viewer.
+3. Home -> Markdown -> extraction -> selected OpenAI/Gemini browser request -> Review -> same viewer.
 
 Tests are added at stable boundaries: runtime schemas and validators, the Markdown adapter, selectors/runtime derivation, reducer transitions, storage/import-export, and user-critical flows. Markdown fixtures measure critical-field accuracy, false/missing events, hallucination, correction count, renderability, and time to viewer. Chunking or new abstractions are added only after measurements show the simple path is insufficient.
 
@@ -155,7 +173,8 @@ Parser Quality compares the original draft with semantic fixture assertions; Rec
 - **[Async results overwrite newer work]** -> Use session/request identity, cancellation, and reducer transition tests.
 - **[Model output is valid JSON but semantically wrong]** -> Run deterministic validation, require source-backed review, and weight critical-field fixtures.
 - **[Private content leaks through persistence or export]** -> Separate ReviewSession from CanonicalTrip and use an allowlisted CanonicalExport projection.
-- **[Browser-local API keys can be exposed by XSS, malicious extensions, or a compromised origin]** -> Make BYOK risk explicit, never ship a shared key, keep the app dependency surface small, use a dedicated storage key and clear action, and recommend restricted project keys with spend limits.
+- **[Browser-local API keys can be exposed by XSS, malicious extensions, or a compromised origin]** -> Make BYOK risk explicit, never ship a shared key, keep the app dependency surface small, isolate provider credentials and clear actions, never put a key in a URL, and recommend restricted credentials and spend controls where supported.
+- **[A replacement parse destroys the traveler's usable trip]** -> Keep the confirmed trip as active truth until Review confirmation atomically replaces it; errors and cancellation return to the existing Viewer.
 
 ## Migration Plan
 
@@ -163,14 +182,16 @@ Parser Quality compares the original draft with semantic fixture assertions; Rec
 2. Move domain validation, selectors, runtime derivation, and viewer components behind feature boundaries while running the Osaka fixture through `CanonicalTrip`.
 3. Add the concrete browser storage module plus filtered canonical JSON import/export.
 4. Add the reducer-owned import/review shell and complete the text-format vertical slice.
-5. Enable real model transmission only after explicit BYOK disclosure, local-key controls, request limits, `store: false`, error sanitization, and no-log/no-export checks are verified.
-6. Run second-user Markdown, accessibility, mobile/desktop, reload/clear, production build, bundle, and console acceptance.
+5. Add Home/Viewer entry routing and the two concrete provider adapters while preserving the existing encrypted OpenAI key and confirmed trip.
+6. Enable real model transmission only after explicit provider-specific BYOK disclosure, isolated local-key controls, request limits, OpenAI `store: false`, Gemini header authentication, error sanitization, and no-URL/no-log/no-export checks are verified.
+7. Run both-provider fixtures, second-user Markdown, accessibility, mobile/desktop, reload/clear, production build, bundle, and console acceptance.
 
 Rollback keeps the canonical Osaka fixture and old checklist key readable. Upload/parse entry points can be disabled without removing the static viewer.
 
 ## Resolved Decisions
 
-- The first parser uses `gpt-5.6-sol` with reasoning effort `high` and direct browser BYOK; no parser host is in V0.
+- The OpenAI parser uses pinned `gpt-5.6-sol` with reasoning effort `high`; the Gemini parser uses pinned `gemini-3.7-flash`; both use direct browser BYOK and no parser host is in V0.
+- Home is shown only when no persisted confirmed trip is active or when replacement import is explicitly started; a confirmed trip bypasses Home, and replacement is atomic after Review confirmation.
 - Markdown source, extraction, request, timeout, and retry limits are defined in `implementation-decisions.md`.
 - `ReviewSession` is memory-only and is discarded on reload, navigation away, or tab close.
 - Stranger-Markdown acceptance is the hard prerequisite for Hosted Delivery; Hosted implementation remains a separate change.

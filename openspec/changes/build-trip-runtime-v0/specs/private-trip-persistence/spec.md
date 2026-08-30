@@ -8,22 +8,30 @@ Trip Runtime SHALL NOT operate a parsing backend and MUST NOT persist source byt
 - **THEN** the browser releases source and response data after the transient ReviewSession and no Trip Runtime server-side application record exists
 
 ### Requirement: Clear privacy disclosure
-Before transmission, the application SHALL state that the file is sent directly from the browser to OpenAI for parsing, is not retained by Trip Runtime application storage, and is subject to the user's OpenAI account and data controls.
+Before transmission, the application SHALL identify the selected provider, state that the file is sent directly from the browser to that provider for parsing, state that it is not retained by Trip Runtime application storage, and explain that processing is subject to the traveler's selected provider account and data controls.
 
 #### Scenario: Traveler starts real AI parsing
-- **WHEN** the traveler is about to transmit an itinerary to OpenAI
-- **THEN** the UI shows the applicable processing and retention disclosure before submission
+- **WHEN** the traveler is about to transmit an itinerary to OpenAI or Gemini
+- **THEN** the UI names that provider and shows the applicable processing and retention disclosure before submission
 
 ### Requirement: Personal browser-local provider credential
-The application SHALL require each traveler to supply their own OpenAI API key, SHALL store only AES-GCM ciphertext under the dedicated `trip-runtime-openai-api-key` browser key with a non-extractable wrapping key in IndexedDB, and MUST NOT ship a shared credential or include the personal key in trip data, exports, logs, analytics, URLs, or error messages.
+The application SHALL require each traveler to supply their own API key for the selected OpenAI or Gemini provider, SHALL isolate AES-GCM ciphertext under dedicated provider-scoped browser records with separate non-extractable wrapping-key records in IndexedDB, SHALL preserve the existing encrypted OpenAI key during migration, and MUST NOT ship a shared credential or include either personal key in trip data, exports, ReviewSession, logs, analytics, URLs, screenshots, fixtures, or error messages. Provider/model selection SHALL remain browser workflow state rather than CanonicalTrip data.
 
 #### Scenario: Traveler saves a personal key
-- **WHEN** a traveler explicitly saves their OpenAI API key
-- **THEN** the encrypted value is persisted in the current browser, masked in the UI, decrypted only for direct OpenAI bearer authentication, and both ciphertext and wrapping key can be removed through a dedicated clear action
+- **WHEN** a traveler explicitly saves an OpenAI or Gemini API key
+- **THEN** only that provider's encrypted value is persisted in the current browser, masked in the UI, decrypted only for that provider's direct request, and its ciphertext and wrapping-key record can be removed through a provider-specific clear action
+
+#### Scenario: Traveler switches provider
+- **WHEN** a traveler changes the selected provider from OpenAI to Gemini or from Gemini to OpenAI
+- **THEN** the application loads only the selected provider's credential status and never copies, exposes, or falls back to the other provider's key
 
 #### Scenario: No personal key exists
-- **WHEN** the traveler attempts AI parsing without a stored key
-- **THEN** the application blocks transmission and directs them to enter their own key
+- **WHEN** the traveler attempts AI parsing without a stored key for the selected provider
+- **THEN** the application blocks transmission and directs them to enter their own key for that provider even if the other provider has a stored key
+
+#### Scenario: Gemini request is authenticated
+- **WHEN** the selected Gemini adapter sends a parse request
+- **THEN** it places the personal key only in the `x-goog-api-key` header and never in the request URL
 
 ### Requirement: Browser-local confirmed trip persistence
 The application SHALL persist versioned CanonicalTrip data, user overrides, and checklist state in a repository-owned browser storage namespace so a confirmed trip survives reload on the same browser.
@@ -47,11 +55,15 @@ The implementation SHALL define whether an interrupted ReviewSession is discarde
 - **THEN** the session is either discarded or restored only according to the documented local retention policy
 
 ### Requirement: Local clear operation
-The traveler SHALL be able to remove all locally stored Trip Runtime trips, overrides, review remnants, checklist state, and migration metadata through an explicit clear action.
+The traveler SHALL be able to remove locally stored Trip Runtime trips, overrides, review remnants, checklist state, and trip migration metadata through an explicit trip-data clear action. Provider credentials SHALL have separate provider-scoped clear actions, and a clear-all-local-data action MAY remove both trip data and credentials only after explicitly stating that wider scope.
 
 #### Scenario: Traveler clears local trip data
 - **WHEN** the traveler confirms the local clear action
-- **THEN** all repository-owned Trip Runtime storage keys and records are removed and the upload/empty state is shown
+- **THEN** all repository-owned trip, override, review-remnant, checklist, and trip-migration records are removed, provider credentials remain available, and Home is shown
+
+#### Scenario: Traveler clears all local data
+- **WHEN** the traveler confirms a separately labeled clear-all-local-data action
+- **THEN** trip data, provider selection, both provider ciphertext records, and both wrapping-key records are removed and Home is shown
 
 ### Requirement: Versioned canonical JSON portability
 The application SHALL create CanonicalExport through an explicit allowlist projection, export and import versioned canonical JSON, validate imported schema and semantics before persistence, and reject unsupported or invalid data without replacing a valid local trip. Export MUST exclude ReviewSession evidence, source excerpts, source binaries, provider details, model responses, and browser-only workflow state.

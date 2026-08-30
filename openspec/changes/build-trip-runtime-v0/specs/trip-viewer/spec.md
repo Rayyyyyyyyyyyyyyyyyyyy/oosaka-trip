@@ -25,6 +25,21 @@ The generalized viewer SHALL provide Overview, Today, Day, Reservations, sticky 
 - **WHEN** the current time is before or after the trip range
 - **THEN** the viewer shows the appropriate countdown/up-next or completed state while keeping every day accessible
 
+### Requirement: Confirmed-trip entry and atomic replacement
+The Viewer SHALL open directly only from a valid persisted confirmed CanonicalTrip or an explicit bundled Osaka sample/fallback action. Provider selection and API-key availability MUST NOT affect reading a confirmed trip. Starting an import SHALL preserve the active confirmed trip, and only successful Review confirmation may atomically replace it.
+
+#### Scenario: Confirmed trip opens without a provider key
+- **WHEN** a valid confirmed trip exists but no OpenAI or Gemini key is stored
+- **THEN** the Viewer remains fully available and asks for a key only if the traveler starts AI parsing
+
+#### Scenario: Replacement parse fails or is cancelled
+- **WHEN** validation, extraction, OpenAI/Gemini parsing, or Review is cancelled or fails during replacement
+- **THEN** the previously confirmed trip remains active and the traveler can return to its Viewer
+
+#### Scenario: Replacement is confirmed
+- **WHEN** the traveler confirms a renderable reviewed candidate
+- **THEN** persistence replaces the active trip atomically and the Viewer opens the new confirmed trip
+
 ### Requirement: Honest runtime state
 The viewer SHALL show NOW, NEXT, and leave-by only when canonical timing and relation data support the conclusion and SHALL refresh time-derived state at least once per minute.
 

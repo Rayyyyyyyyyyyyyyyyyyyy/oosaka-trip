@@ -69,9 +69,27 @@ The parser MUST NOT create dates, event times, places, reservations, ticket stat
 - **WHEN** the source contains a place name but no route or travel duration
 - **THEN** the draft may retain the unresolved place name but does not generate a route or duration
 
+### Requirement: Provider-neutral parse contract
+The browser parse service SHALL support two concrete direct-provider adapters, OpenAI and Gemini, behind one explicit provider dispatch boundary. Both adapters MUST apply the same conservative parser semantics, produce the same ParsedTripDraft contract, and pass the same runtime and deterministic validation before Review. Provider-specific request/response shapes, authentication, transient usage metadata, and failure details MUST remain outside CanonicalTrip and CanonicalExport.
+
+#### Scenario: Equivalent provider output
+- **WHEN** OpenAI and Gemini return semantically equivalent structured results for the same UnifiedSourceDocument
+- **THEN** both results enter the same ParsedTripDraft validation and Review flow without provider-specific trip fields
+
+#### Scenario: Provider returns schema-shaped but unsupported content
+- **WHEN** either provider returns JSON that fails the shared ParsedTripDraft runtime schema or deterministic validation
+- **THEN** the system rejects it as a recoverable parse failure and does not create or replace a confirmed trip
+
+### Requirement: Pinned acceptance-tested provider models
+Each provider adapter SHALL use one explicitly pinned structured-output model, and changing either model SHALL require rerunning provider adapter tests, parser-quality fixtures, and the unfamiliar-Markdown acceptance gate before production use.
+
+#### Scenario: Provider model changes
+- **WHEN** a pinned OpenAI or Gemini model identifier is updated
+- **THEN** the new model is not treated as production-ready until the shared fixture and stranger-Markdown acceptance checks pass
+
 ### Requirement: Structured parse failure behavior
 The system SHALL surface malformed output, schema mismatch, timeout, provider failure, and partial parsing as explicit recoverable states.
 
 #### Scenario: Model returns malformed structured output
 - **WHEN** the parser response cannot be decoded or validated
-- **THEN** the system does not create a canonical trip and offers a safe retry or return-to-upload path
+- **THEN** the system does not create or replace a canonical trip and offers a safe retry, return-to-Home, or return-to-current-trip path

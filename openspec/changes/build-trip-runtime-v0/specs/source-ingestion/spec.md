@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Home-first source entry
+When no persisted confirmed CanonicalTrip exists, the system SHALL open a mobile-first Home page that contains OpenAI/Gemini provider and personal-key setup, one Markdown upload target, canonical JSON import, supported-format and privacy guidance, and a reserved optional-form area without requiring unapproved traveler fields. A persisted confirmed trip SHALL bypass Home and open the existing Viewer directly.
+
+#### Scenario: New browser has no confirmed trip
+- **WHEN** the application loads without a valid persisted confirmed CanonicalTrip
+- **THEN** Home is shown and the bundled Osaka fixture is offered only through an explicit sample/fallback action rather than silently becoming active
+
+#### Scenario: Browser already has a confirmed trip
+- **WHEN** the application loads with a valid persisted confirmed CanonicalTrip
+- **THEN** the Viewer opens directly without requiring a provider key or re-upload
+
+#### Scenario: Traveler starts replacement import
+- **WHEN** a traveler with a confirmed trip explicitly chooses to create or replace a trip
+- **THEN** Home/import is shown while the current confirmed trip remains intact until a reviewed replacement is successfully confirmed
+
 ### Requirement: Single Markdown source upload
 The system SHALL accept exactly one readable `.md` or `text/markdown` itinerary source for a V0 trip, SHALL explain that only one source is processed at a time, and SHALL identify XLSX as a later narrow Spreadsheet Travel Table slice and other structured or visual formats as later evidence-driven work.
 
@@ -9,14 +24,14 @@ The system SHALL accept exactly one readable `.md` or `text/markdown` itinerary 
 
 #### Scenario: Multiple or deferred-format files selected
 - **WHEN** a traveler selects multiple files or a TXT, CSV, XLSX, DOCX, PDF, image, or mind-map source
-- **THEN** the system rejects the selection with a clear Markdown-only V0 explanation without affecting the existing viewer
+- **THEN** the system rejects the selection with a clear Markdown-only V0 explanation without affecting the existing confirmed trip or explicit Osaka fallback
 
 ### Requirement: Pre-extraction validation
 The system MUST validate detected Markdown type, configured byte limit, emptiness, UTF-8 readability, and basic corruption before semantic parsing.
 
 #### Scenario: Unreadable Markdown source
 - **WHEN** a file is empty, unreadable, unsupported, or outside configured limits
-- **THEN** the system stops before model parsing and displays a specific recoverable error without making the existing static viewer unavailable
+- **THEN** the system stops before model parsing and displays a specific recoverable error without replacing or making the existing confirmed trip unavailable
 
 ### Requirement: Structure-preserving Markdown extraction
 The system SHALL convert accepted Markdown into a minimal Unified Source Document made from ordered text and table blocks that preserve headings, paragraphs, lists, checkboxes, tables, links, source order, and stable locators rather than flattening the file into undifferentiated text.
@@ -37,7 +52,7 @@ Markdown extraction SHALL be isolated behind the Unified Source Document contrac
 
 #### Scenario: Traveler opens an existing confirmed trip
 - **WHEN** no document is being imported
-- **THEN** the extraction and parsing path does not prevent the bundled static viewer from loading
+- **THEN** the extraction and parsing path does not prevent the persisted confirmed trip or explicit bundled fallback from loading
 
 ### Requirement: Accessible upload interaction
 File selection, drag-and-drop, progress, and validation errors SHALL be keyboard-operable and exposed through appropriate names, status announcements, error associations, and focus management.

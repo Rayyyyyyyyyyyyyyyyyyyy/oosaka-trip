@@ -25,7 +25,8 @@ Build and maintain the personal viewer and the explicitly approved Markdown V0 p
 - Structure-preserving Markdown extraction
 - Conservative AI parsing, deterministic validation, and focused review
 - Browser-local confirmed trip persistence and canonical JSON portability
-- Personal browser-local OpenAI API key controls for direct parsing requests
+- A Home-first setup flow for AI provider/key selection, Markdown upload, canonical JSON import, format guidance, privacy notices, and a reserved optional-form area
+- Personal browser-local OpenAI and Gemini API key controls for direct parsing requests
 
 Hosted delivery is planned separately in `openspec/changes/hosted-trip-delivery-lite/` and MUST NOT be implemented until the Markdown stranger-acceptance gate passes. V0.2 is limited to a narrow Spreadsheet Travel Table slice; advanced spreadsheets, DOCX, PDF, screenshots, and mind maps remain later evidence-driven work. Do not add accounts, email recovery, cross-device ownership/editing, permanent hosted retention, recommendations, expenses, packing, social features, booking, or automatic replanning unless the user explicitly asks.
 
@@ -79,7 +80,7 @@ For `hosted-trip-delivery-lite`:
 - The hosted viewer is read-only. Published readiness is snapshot state for reservation, ticket, document, payment, or another trip dependency; it is not event completion and cannot be mutated through the viewer URL.
 - Management uses a one-time copy/download recovery secret for republish, revoke, delete, and bounded expiry extension. Lite has no email recovery.
 - Every publication has bounded expiry. Delete, revoke cleanup, or expiry cascades to its snapshot and credential data; Lite does not promise permanent retention.
-- Hosted storage MUST NOT receive raw uploads, UnifiedSourceDocument blocks, source excerpts, ReviewSession evidence, parser responses, OpenAI keys, or production parser benchmark artifacts.
+- Hosted storage MUST NOT receive raw uploads, UnifiedSourceDocument blocks, source excerpts, ReviewSession evidence, parser responses, OpenAI or Gemini keys, or production parser benchmark artifacts.
 
 ## Technology
 
@@ -92,6 +93,20 @@ For `hosted-trip-delivery-lite`:
 - GitHub Pages deployment through `.github/workflows/pages.yml`
 
 Prefer library and framework components over hand-built equivalents. Do not reintroduce a parallel handcrafted CSS component system.
+
+## Entry flow and AI provider behavior
+
+- When no persisted confirmed CanonicalTrip exists, the application opens a mobile-first Home page rather than treating the bundled Osaka fixture as the active trip.
+- Home contains OpenAI/Gemini provider selection, the selected provider's personal API-key controls, one Markdown upload target, canonical JSON import, upload-format/privacy guidance, and space for future optional form fields. Do not invent required traveler fields before their purpose is approved.
+- When a persisted confirmed CanonicalTrip exists, reload opens the existing itinerary Viewer directly. The selected provider and API key are parsing settings, not prerequisites for reading a confirmed trip.
+- Starting a replacement import keeps the current confirmed trip intact. Cancellation, validation failure, extraction failure, or provider failure returns to that trip; only successful Review confirmation atomically replaces it.
+- The bundled Osaka trip remains an explicit safe sample/fallback path, but its presence MUST NOT cause the application to bypass Home.
+- OpenAI and Gemini use two concrete provider adapters behind one provider-neutral `parseTrip(request)` contract and the same ParsedTripDraft schema, deterministic validation, Review, and CanonicalTrip confirmation path. Do not add a plugin system or speculative provider registry.
+- Each provider has an isolated encrypted browser-local credential and a provider-specific clear action. Preserve the existing encrypted OpenAI key during migration; never copy, share, or fall back from one provider's key to the other.
+- OpenAI requests use bearer authentication and `store: false`. Gemini requests use the `x-goog-api-key` header; API keys MUST NOT appear in URLs. Provider/model selection and provider response metadata MUST NOT enter CanonicalTrip or CanonicalExport.
+- Each provider uses one pinned, acceptance-tested structured-output model. Changing a pinned model requires rerunning parser-quality and stranger-Markdown acceptance fixtures.
+- Canonical JSON is the approved cross-computer portability path in V0. Browser-local API keys do not sync; each browser/device requires its own explicitly supplied key.
+- Clearing trip data returns to Home without silently clearing provider keys. Clearing a provider key or all local data requires a separate explicit action whose scope is stated before confirmation.
 
 ## Source-of-truth files
 
