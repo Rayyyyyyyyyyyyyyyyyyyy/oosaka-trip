@@ -1,16 +1,36 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+import { ACTIVE_TRIP_STORAGE_KEY } from "./storage/tripStorage";
 import { osakaTrip } from "./fixtures/osakaTrip";
 import { TripRuntimeApp } from "./App";
 
 describe("TripRuntimeApp entry flow", () => {
+  beforeEach(() => localStorage.clear());
   it("opens Home when no confirmed trip is persisted and shows Osaka only on request", async () => {
     render(<TripRuntimeApp initialTrip={null} sampleTrip={osakaTrip} />);
     expect(screen.getByRole("heading", { name: "把你的行程帶進來" })).toBeTruthy();
 
     await userEvent.click(screen.getByRole("button", { name: "查看大阪內建範例" }));
     expect((await screen.findAllByText("大阪・宇治・奈良")).length).toBeGreaterThan(0);
+  });
+
+  it("routes invalid persisted canonical data to Home with a scoped recovery notice", () => {
+    localStorage.setItem(ACTIVE_TRIP_STORAGE_KEY, JSON.stringify({ ...osakaTrip, timezone: "not/a-timezone" }));
+    render(<TripRuntimeApp />);
+    expect(screen.getByRole("heading", { name: "把你的行程帶進來" })).toBeTruthy();
+    expect(screen.getByText(/已儲存的旅程目前無法開啟/)).toBeTruthy();
+    expect(localStorage.getItem(ACTIVE_TRIP_STORAGE_KEY)).not.toBeNull();
+  });
+
+  it("exits sample mode back to Home without persisting the sample", async () => {
+    render(<TripRuntimeApp initialTrip={null} sampleTrip={osakaTrip} />);
+    await userEvent.click(screen.getByRole("button", { name: "查看大阪內建範例" }));
+    await userEvent.click(screen.getByLabelText("開啟選單"));
+    await userEvent.click(screen.getByRole("button", { name: "離開大阪範例" }));
+    await userEvent.click(screen.getByRole("button", { name: "確認離開" }));
+    expect(screen.getByRole("heading", { name: "把你的行程帶進來" })).toBeTruthy();
+    expect(localStorage.getItem(ACTIVE_TRIP_STORAGE_KEY)).toBeNull();
   });
 
   it("bypasses Home for a confirmed trip", () => {

@@ -1,13 +1,13 @@
-import { lazy, Suspense, useReducer } from "react";
-import { Box, Button, Container, Paper, Stack, Typography } from "@mui/material";
+import { lazy, Suspense } from "react";
+import { Alert, Box, Button, Container, Paper, Stack, Typography } from "@mui/material";
 import { Explore } from "@mui/icons-material";
 import { CanonicalTripControls } from "./CanonicalTripControls";
-import { importReducer, initialImportState } from "./importReducer";
+import { useTripImportWorkflow } from "./useTripImportWorkflow";
 
 const TripImportWorkflow = lazy(() => import("./TripImportWorkflow").then((module) => ({ default: module.TripImportWorkflow })));
 
-export function TripHome({ onOpenSample }) {
-  const [state, dispatch] = useReducer(importReducer, initialImportState);
+export function TripHome({ onOpenSample, onTripConfirmed, onTripImported, recoveryStatus = null }) {
+  const workflow = useTripImportWorkflow({ onTripConfirmed });
 
   return (
     <Box minHeight="100vh" bgcolor="background.default" py={{ xs: 5, md: 9 }}>
@@ -20,11 +20,19 @@ export function TripHome({ onOpenSample }) {
           上傳一個 Markdown，經過來源保留、保守解析與 Review 後，才會取代目前確認的旅程。
         </Typography>
 
+        {recoveryStatus && (
+          <Alert severity="warning" sx={{ mt: 3 }}>
+            {recoveryStatus === "invalid"
+              ? "已儲存的旅程目前無法開啟。它不會進入 Viewer，也尚未被自動刪除；你可以在下方重新匯入有效資料或查看大阪範例。"
+              : "瀏覽器目前無法讀取已儲存的旅程。你仍可使用下方匯入工具或查看大阪範例。"}
+          </Alert>
+        )}
+
         <Paper sx={{ mt: 4, p: { xs: 2.5, md: 4 }, borderTop: 1, borderBottom: 1, borderColor: "text.primary" }}>
           <Suspense fallback={<Typography role="status">正在載入匯入工具…</Typography>}>
-            <TripImportWorkflow state={state} dispatch={dispatch} />
+            <TripImportWorkflow workflow={workflow} />
           </Suspense>
-          <CanonicalTripControls trip={null} />
+          <CanonicalTripControls trip={null} onTripImported={onTripImported} />
         </Paper>
 
         <Paper variant="outlined" sx={{ mt: 3, p: 2.5 }}>

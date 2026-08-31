@@ -3,7 +3,8 @@ import { importReducer, initialImportState, viewingImportState } from "./importR
 
 describe("importReducer shell", () => {
   it("represents idle and viewing without owning viewer state", () => {
-    expect(importReducer(initialImportState, { type: "VIEW_TRIP", tripId: "trip-1" })).toEqual(
+    const confirming = { ...initialImportState, status: "confirming", confirmationId: "confirmation" };
+    expect(importReducer(confirming, { type: "VIEW_TRIP", confirmationId: "confirmation", tripId: "trip-1" })).toEqual(
       viewingImportState("trip-1"),
     );
   });
@@ -29,6 +30,28 @@ describe("importReducer shell", () => {
     expect(importReducer(active, { type: "PARSED", requestId: "old", reviewSession: {} })).toBe(active);
     const failed = importReducer(active, { type: "PARSE_FAILED", requestId: "new", error: "Provider unavailable" });
     expect(failed).toMatchObject({ status: "parse_error", error: "Provider unavailable" });
-    expect(importReducer(failed, { type: "RETRY_PARSE" })).toMatchObject({ status: "parsing", error: null });
+    expect(importReducer(failed, { type: "RETRY_PARSE", requestId: "retry" })).toMatchObject({ status: "parsing", requestId: "retry", error: null });
+  });
+
+  it("requires both request identity and expected status for every async transition", () => {
+    const validating = importReducer(initialImportState, { type: "SELECT_FILE", requestId: "one", file: {} });
+    expect(importReducer(validating, { type: "EXTRACTED", requestId: "one", sourceDocument: {} })).toBe(validating);
+    const extracting = importReducer(validating, { type: "VALIDATED", requestId: "one" });
+    expect(importReducer(extracting, { type: "PARSED", requestId: "one", reviewSession: {} })).toBe(extracting);
+    const parsing = importReducer(extracting, { type: "EXTRACTED", requestId: "one", sourceDocument: {} });
+    expect(importReducer(parsing, { type: "VALIDATED", requestId: "one" })).toBe(parsing);
+  });
+
+  it("assigns retries a new request identity and ignores the superseded response", () => {
+    const failed = { status: "parse_error", tripId: "trip-1", requestId: "old", sourceDocument: { blocks: [] }, error: "failed" };
+    const retrying = importReducer(failed, { type: "RETRY_PARSE", requestId: "retry" });
+    expect(retrying).toMatchObject({ status: "parsing", requestId: "retry" });
+    expect(importReducer(retrying, { type: "PARSED", requestId: "old", reviewSession: {} })).toBe(retrying);
+  });
+
+  it("does not confirm or view from an unexpected status", () => {
+    const viewing = viewingImportState("trip-1");
+    expect(importReducer(viewing, { type: "CONFIRM", requestId: "confirm", reviewSession: {} })).toBe(viewing);
+    expect(importReducer(viewing, { type: "VIEW_TRIP", requestId: "confirm", tripId: "trip-2" })).toBe(viewing);
   });
 });

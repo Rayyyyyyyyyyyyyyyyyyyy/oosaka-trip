@@ -3,7 +3,7 @@ import { Alert, Button, Stack, Typography } from "@mui/material";
 import { Download, UploadFile } from "@mui/icons-material";
 import { exportCanonicalJson, importCanonicalJson } from "../../storage/tripStorage";
 
-export function CanonicalTripControls({ trip }) {
+export function CanonicalTripControls({ trip, onTripImported }) {
   const [error, setError] = useState("");
 
   const exportTrip = () => {
@@ -23,8 +23,8 @@ export function CanonicalTripControls({ trip }) {
     event.target.value = "";
     if (!file) return;
     try {
-      importCanonicalJson(await file.text());
-      window.location.reload();
+      const imported = importCanonicalJson(await file.text());
+      onTripImported?.(imported);
     } catch {
       setError("這不是有效或支援版本的 Trip Runtime JSON；原本旅程未被取代。");
     }
