@@ -36,8 +36,8 @@ The decided roadmap is:
 
 ```text
 V0    Understand + Trust
-      Source -> UnifiedSourceDocument -> ParsedTripDraft
-      -> deterministic validation -> evidence-backed Review
+      Source -> UnifiedSourceDocument -> Semantic Interpreter
+      -> ParsedTripDraft -> deterministic validation -> evidence-backed Review
       -> Confirmed CanonicalTrip -> External Markdown Benchmark #001 gate
 
 V0.1  Deliver
@@ -57,12 +57,56 @@ Only with evidence
 Current research state:
 
 ```text
-Formal input samples                  24
+Formal input samples                  25
 External Markdown benchmarks           1
 Response reference pairs               1
-Cross-format semantic saturation       not reached
+Cross-format semantic saturation       approaching, not declared
 Markdown V0 evidence boundary          sufficient to implement
 ```
+
+## Source-to-UI architecture invariants
+
+Treat the current product architecture as:
+
+```text
+Source
+→ source-specific extraction / reconstruction
+→ UnifiedSourceDocument
+→ Semantic Interpreter
+→ ParsedTripDraft
+→ deterministic validation
+→ Review
+→ Confirmed CanonicalTrip
+→ Presentation Projection
+→ source-agnostic Result UI
+```
+
+Architecture mantra:
+
+> **Code reads the source. LLM understands the intent. Code verifies the result. User confirms the truth. Renderer presents it.**
+
+`Semantic Interpreter` is the boundary between source-level evidence and `ParsedTripDraft`. It may be implemented with:
+
+```text
+Semantic Interpreter
+├─ deterministic rules
+├─ LLM
+└─ hybrid
+```
+
+The LLM is one implementation of the Semantic Interpreter, not the whole Parser or pipeline.
+
+Rules:
+
+- A new input format should normally add or extend a Source Adapter, not create a new Renderer path.
+- Do not flatten every source to plain text before interpretation. Preserve structural signals that carry intent, such as spreadsheet row/column/merge relationships, PDF/visual grouping, Markdown structure, and mind-map hierarchy.
+- Source Adapters read and reconstruct source evidence into `UnifiedSourceDocument`; they do not decide confirmed trip truth.
+- Semantic Interpreter implementations consume `UnifiedSourceDocument` and produce `ParsedTripDraft`; an LLM implementation must not bypass this boundary by becoming a file reader, validator, reviewer, or Renderer.
+- Deterministic validation owns schema, date, time, rollover, trip-range, duplicate, impossible-sequence, and logical-conflict checks. Review and confirmation own the user's final truth.
+- Source-specific logic belongs in extraction / reconstruction. Do not leak source-type branching through CanonicalTrip into Result components.
+- Renderer and Presentation Projection MUST NOT read raw Markdown, workbook objects, PDF page objects, extracted blocks, or UnifiedSourceDocument.
+- Result UI templates are selected by travel semantics and runtime state, not by file format.
+- CanonicalTrip describes what the trip means. Presentation Projection describes how confirmed semantics are presented. UI-only fields MUST NOT be written back into CanonicalTrip.
 
 Sample #23 is `External Markdown Benchmark #001` and is the current Markdown acceptance fixture.
 
@@ -151,6 +195,7 @@ Current documentation roles:
 03_PIPELINE_SPEC.md           source-to-canonical pipeline
 04_RESPONSE_PAGE_RESEARCH.md  source-to-result / Result UI evidence
 05_V0_IMPLEMENTATION_PLAN.md  implementation order and acceptance gates
+06_RESULT_UI_SPEC.md             Result UI grammar / visual-system working spec
 ```
 
 Keep Input Research and Response Page Research separate. A source document can be an input sample while its existing rendered Web can form a response-reference pair.
@@ -161,13 +206,14 @@ Use these files as product and itinerary references:
 
 - `temp/00_README.md`: current documentation map and maintenance rules
 - `temp/01_CANONICAL_CONTEXT.md`: current product decisions, scope, roadmap, and validated / unvalidated assumptions
-- `temp/02_INPUT_RESEARCH.md`: current real-world input evidence from 24 formal samples; the sample number is not a participant count, and the corresponding source files are under `temp/Odata/`
+- `temp/02_INPUT_RESEARCH.md`: current real-world input evidence from 25 formal samples; the sample number is not a participant count, and the corresponding source files are under `temp/Odata/`
 - `temp/03_PIPELINE_SPEC.md`: source-to-canonical pipeline principles
 - `temp/04_RESPONSE_PAGE_RESEARCH.md`: current Source → Result / Response Page evidence; currently contains Response Reference Pair #001 (`Busan.xlsx` → Busan mobile Web)
 - `temp/05_V0_IMPLEMENTATION_PLAN.md`: current implementation order, parser/review work, and acceptance gates
+- `temp/06_RESULT_UI_SPEC.md`: current source-agnostic Result UI grammar and visual-system working draft; visual rules are not frozen until UI Skyline and Golden Screens are completed
 - `temp/md-files/osaka_uji_nara_2026-09-10_to_09-15.md`: canonical human-readable itinerary for Golden Input #001
 - `temp/md-files/trip_places_google_maps.md`: authoritative Google Maps URLs
-- `temp/md-files/trip_runtime_result_ui_spec_v0.1.md`: historical result-view principles; later decisions in `01_CANONICAL_CONTEXT.md` and `04_RESPONSE_PAGE_RESEARCH.md` take precedence where they differ
+- `temp/md-files/trip_runtime_result_ui_spec_v0.1.md`: historical result-view principles; later decisions in `01_CANONICAL_CONTEXT.md`, `04_RESPONSE_PAGE_RESEARCH.md`, and `06_RESULT_UI_SPEC.md` take precedence where they differ
 - `temp/md-files/trip_runtime_end_to_end_flow_v0.1.md`: historical broader product context; later decisions in `01_CANONICAL_CONTEXT.md` take precedence
 - `src/tripData.js`: structured runtime data consumed by the Osaka viewer
 - `openspec/changes/build-trip-runtime-v0/`: active Markdown Understand + Trust implementation and External Markdown Benchmark #001 acceptance gate
@@ -219,6 +265,10 @@ Keep these distinctions in parser / validator behavior even if the first impleme
 
 ## UI principles
 
+- `06_RESULT_UI_SPEC.md` is currently a working draft, not a frozen visual system.
+- Major Result UI visual decisions MUST follow: `Response Page Research -> UI Skyline / Visual Direction -> Golden Screens -> 06_RESULT_UI_SPEC refinement / freeze`.
+- Do not let an agent invent a final typography, spacing, surface, color, or navigation system before Skyline / Golden Screen evidence exists.
+- A source format MUST NOT determine Result UI appearance. Presentation is driven by Canonical semantics and runtime priority.
 - Mobile first; assume the user is walking, standing on a train platform, or checking the phone one-handed.
 - Prioritize Today, Now, Next, leave-by, directions, and reservations.
 - Preserve flexible and optional travel. Do not turn leisure into task completion.
