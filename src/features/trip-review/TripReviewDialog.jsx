@@ -26,7 +26,7 @@ import { useTheme } from "@mui/material/styles";
 import { addReviewItem, applyReviewOverride, removeReviewItem } from "../../domain/trip/review";
 
 const EVENT_TYPES = ["flight", "hotel", "work", "activity", "restaurant", "free_time", "transport"];
-const TIMING_KINDS = ["exact", "range", "approximate", "part_of_day", "all_day", "unspecified"];
+const TIMING_KINDS = ["exact", "range", "open_ended", "approximate", "part_of_day", "all_day", "unspecified"];
 
 function messagesFor(findings, entityId) {
   return findings.filter((finding) => finding.entityId === entityId);
@@ -53,7 +53,7 @@ function Evidence({ entries, sourceDocument }) {
 
 function timingFor(kind, current) {
   const label = current?.label || (kind === "all_day" ? "全天" : kind === "unspecified" ? "時間未指定" : kind);
-  return { kind, start: null, end: null, value: kind === "part_of_day" ? "morning" : null, label };
+  return { kind, start: null, end: null, value: kind === "part_of_day" ? "morning" : null, label, crossesMidnight: false };
 }
 
 function ItemEditor({ item, findings, sourceDocument, update, remove }) {
@@ -69,9 +69,12 @@ function ItemEditor({ item, findings, sourceDocument, update, remove }) {
         <Field label="名稱" value={item.title} onChange={(value) => update("title", value)} error={first(["missing_item_title"])} />
         {item.kind === "event" && <TextField select label="類型" value={item.type ?? ""} onChange={(event) => update("type", event.target.value || null)} error={Boolean(first(["missing_event_type"]))} helperText={first(["missing_event_type"])?.message} fullWidth>{EVENT_TYPES.map((type) => <MenuItem key={type} value={type}>{type}</MenuItem>)}</TextField>}
         <Field label="地點（只保留來源或你的修正）" value={item.place} onChange={(value) => update("place", value)} />
+        {item.kind === "transit" && <Stack direction={{ xs: "column", sm: "row" }} spacing={2}><Field label="起點" value={item.from} onChange={(value) => update("from", value)} /><Field label="終點" value={item.to} onChange={(value) => update("to", value)} /></Stack>}
         <TextField select label="時間語意" value={item.timing?.kind ?? ""} onChange={(event) => update("timing", timingFor(event.target.value, item.timing))} error={Boolean(first(["missing_timing_semantics"]))} helperText={first(["missing_timing_semantics"])?.message} fullWidth>{TIMING_KINDS.map((kind) => <MenuItem key={kind} value={kind}>{kind}</MenuItem>)}</TextField>
         {item.timing?.kind === "exact" && <Field label="開始時間" type="time" value={item.timing.start} onChange={(value) => update("timing.start", value)} error={first(["missing_exact_time", "invalid_time"])} InputLabelProps={{ shrink: true }} />}
         {item.timing?.kind === "range" && <Stack direction={{ xs: "column", sm: "row" }} spacing={2}><Field label="開始" type="time" value={item.timing.start} onChange={(value) => update("timing.start", value)} error={first(["invalid_time_range"])} InputLabelProps={{ shrink: true }} /><Field label="結束" type="time" value={item.timing.end} onChange={(value) => update("timing.end", value)} error={first(["invalid_time_range"])} InputLabelProps={{ shrink: true }} /></Stack>}
+        {item.timing?.kind === "open_ended" && <Field label="開始時間（不虛構結束）" type="time" value={item.timing.start} onChange={(value) => update("timing.start", value)} error={first(["missing_open_ended_start"])} InputLabelProps={{ shrink: true }} />}
+        {item.timing?.kind === "range" && <FormControlLabel control={<Checkbox checked={Boolean(item.timing.crossesMidnight)} onChange={(event) => update("timing.crossesMidnight", event.target.checked)} />} label="跨日" />}
         {item.timing?.kind === "approximate" && <Field label="約略時間" type="time" value={item.timing.value} onChange={(value) => update("timing.value", value)} error={first(["missing_approximate_time"])} InputLabelProps={{ shrink: true }} />}
         {item.timing?.kind === "part_of_day" && <TextField select label="時段" value={item.timing.value ?? "morning"} onChange={(event) => update("timing.value", event.target.value)} fullWidth>{["morning", "afternoon", "evening"].map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}</TextField>}
         {item.timing && <Field label="來源時間標籤" value={item.timing.label} onChange={(value) => update("timing.label", value || "時間未指定")} />}
@@ -80,6 +83,8 @@ function ItemEditor({ item, findings, sourceDocument, update, remove }) {
         <Stack direction={{ xs: "column", sm: "row" }}>
           {["flexible", "optional", "tentative"].map((field) => <FormControlLabel key={field} control={<Checkbox checked={item[field]} onChange={(event) => update(field, event.target.checked)} />} label={field} />)}
         </Stack>
+        {item.kind === "event" && <TextField select label="行程關係" value={item.relation?.kind ?? "committed"} onChange={(event) => update("relation", event.target.value === "committed" ? null : { kind: event.target.value, groupId: item.relation?.groupId ?? null, condition: item.relation?.condition ?? null })} fullWidth>{["committed", "alternative", "conditional", "fallback"].map((kind) => <MenuItem key={kind} value={kind}>{kind}</MenuItem>)}</TextField>}
+        {item.relation && <Stack direction={{ xs: "column", sm: "row" }} spacing={2}><Field label="關係群組" value={item.relation.groupId} onChange={(value) => update("relation.groupId", value)} /><Field label="條件說明" value={item.relation.condition} onChange={(value) => update("relation.condition", value)} /></Stack>}
         {item.type === "flight" && <Stack spacing={2} pl={{ sm: 2 }} borderLeft={2} borderColor="divider">
           <Typography fontWeight={700}>航班欄位</Typography>
           {[["班號", "code"], ["出發機場", "origin"], ["抵達機場", "destination"]].map(([label, field]) => <Field key={field} label={label} value={item.flight?.[field]} onChange={(value) => update(`flight.${field}`, value)} error={first(["incomplete_flight"])} />)}

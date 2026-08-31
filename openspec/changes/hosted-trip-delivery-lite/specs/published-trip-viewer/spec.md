@@ -29,11 +29,15 @@ The hosted viewer SHALL consume only a runtime-validated PublishedTripSnapshot a
 - **THEN** the response includes the viewer-safe snapshot and necessary expiry/status presentation data but excludes management and source material
 
 ### Requirement: Existing travel-day behavior
-The hosted viewer SHALL reuse the existing Overview, Today, Day, Reservations, Date Rail, optional/flexible/all-day, exact-link, and honest NOW/NEXT behavior, deriving current state from the published trip timezone and refreshing time-derived state at least once per minute.
+The hosted viewer SHALL reuse the existing Overview, Today, Day, Reservations, Date Rail, optional/flexible/all-day, exact directions-link, and honest NOW/NEXT/arrive-by/source-derived-leave-by behavior, deriving current state from the published trip timezone and refreshing time-derived state at least once per minute. Alternative, Conditional, Flexible, and rest/fallback relationships MUST remain distinct rather than being flattened into a misleading committed sequence.
 
 #### Scenario: Hosted trip is open during travel
 - **WHEN** the current time in the published trip timezone falls on a trip day
-- **THEN** the same viewer components select Today and derive only source-supported NOW/NEXT information
+- **THEN** the same viewer components select Today and derive only source-supported NOW/NEXT/arrive-by/leave-by information
+
+#### Scenario: Published day contains choices and a source deadline
+- **WHEN** a snapshot contains alternative dinner options, a rest fallback, and a source-supported arrival deadline for a later reservation
+- **THEN** the hosted viewer presents the choices as alternatives and keeps the arrival constraint eligible for Today runtime treatment without inventing travel time or implying that every choice will occur
 
 ### Requirement: Safe unavailable and expired states
 Revoked, deleted, expired, missing, and invalid publications SHALL stop exposing trip content and SHALL return a generic unavailable or expired experience without revealing whether another slug exists or whether management operations are possible. A transient service failure SHALL not fabricate stale trip facts.

@@ -42,9 +42,11 @@ export function CanonicalTripControls({ trip }) {
           onChange={importTrip}
         />
       </Button>
-      <Button variant="outlined" startIcon={<Download />} onClick={exportTrip}>
-        匯出 Trip JSON
-      </Button>
+      {trip && (
+        <Button variant="outlined" startIcon={<Download />} onClick={exportTrip}>
+          匯出 Trip JSON
+        </Button>
+      )}
       {error && (
         <Alert severity="error" onClose={() => setError("")}>
           {error}

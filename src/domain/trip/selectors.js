@@ -26,6 +26,12 @@ function linkOf(event, type) {
   return event.links.find((link) => link.type === type)?.url;
 }
 
+function mapsSearch(place) {
+  return place
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`
+    : undefined;
+}
+
 export function selectTripHeader(trip) {
   const days = trip.days.length;
   return {
@@ -42,9 +48,12 @@ export function selectFlights(trip) {
     day.items
       .filter((item) => item.kind === "event" && item.flight)
       .map((event) => ({
-        code: event.flight.code,
+        code: event.flight.code ?? "Flight",
         date: monthDay(day.date),
-        route: `${event.flight.origin} ${event.flight.departure} → ${event.flight.destination} ${event.flight.arrival}`,
+        route: [
+          [event.flight.origin, event.flight.departure].filter(Boolean).join(" "),
+          [event.flight.destination, event.flight.arrival].filter(Boolean).join(" "),
+        ].filter(Boolean).join(" → ") || "Details unresolved",
       })),
   );
 }
@@ -69,6 +78,7 @@ export function selectStay(trip) {
 }
 
 function selectEvent(event) {
+  const exactMap = linkOf(event, "maps");
   return {
     id: event.id,
     time: timingLabel(event.timing),
@@ -78,7 +88,9 @@ function selectEvent(event) {
     note: event.note,
     status: event.status,
     flexible: Boolean(event.flexible),
-    map: linkOf(event, "maps"),
+    relation: event.relation,
+    map: exactMap ?? mapsSearch(event.place),
+    mapIsFallback: !exactMap && Boolean(event.place),
     tabelog: linkOf(event, "restaurant"),
     timing: event.timing,
   };
@@ -98,6 +110,7 @@ export function selectDays(trip) {
       id: day.id,
       date: day.date,
       n: String(date.getUTCDate()),
+      month: displayDate.format(date).split(" ")[0].toUpperCase(),
       dow: displayWeekday.format(date).toUpperCase(),
       label: day.theme || day.title,
       title: day.title,
@@ -107,13 +120,14 @@ export function selectDays(trip) {
         primaryEvents.length === 1 && primaryEvents[0].timing.kind === "all_day",
       events: timelineItems.map((item) =>
         item.kind === "transit"
-          ? { id: item.id, transit: item.label, tip: item.tip }
+          ? { id: item.id, transit: item.label, tip: item.tip, from: item.from, to: item.to }
           : selectEvent(item),
       ),
       optional: optionalItems.map((event) => ({
         id: event.id,
         name: event.title,
-        map: linkOf(event, "maps"),
+        map: linkOf(event, "maps") ?? mapsSearch(event.place),
+        mapIsFallback: !linkOf(event, "maps") && Boolean(event.place),
       })),
       canonicalDay: day,
     };

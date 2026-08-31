@@ -1,10 +1,10 @@
 ## Why
 
-The Osaka Golden Result can already validate travel-day usefulness through GitHub Pages, but a second traveler who confirms their own CanonicalTrip cannot automatically receive a stable mobile URL. After the Markdown V0 passes its stranger-itinerary acceptance gate, Trip Runtime needs a deliberately narrow delivery capability that publishes confirmed facts without pulling accounts, cross-device editing, or permanent retention into the parser change.
+The Osaka Golden Result can already validate travel-day usefulness through GitHub Pages, but a second traveler who confirms their own CanonicalTrip cannot automatically receive a stable mobile URL. After External Markdown Benchmark #001 passes its acceptance gate, Trip Runtime needs a deliberately narrow delivery capability that publishes confirmed facts without pulling accounts, cross-device editing, or permanent retention into the parser change.
 
 ## What Changes
 
-- Add an explicit positive-allowlist projection from confirmed CanonicalTrip data into a schema-versioned, immutable `PublishedTripSnapshot`; CanonicalExport portability does not automatically define publishability.
+- Add an explicit positive-allowlist projection from confirmed CanonicalTrip data into a schema-versioned, immutable `PublishedTripSnapshot`, including the viewer-required Alternative/Conditional/Flexible relationships, exact links, reservation/resource distinctions, and source-derived arrival/leave-by constraints; CanonicalExport portability does not automatically define publishability.
 - Add a minimal `TripPublication` lifecycle record that controls only where, whether, and until when a trip is available through a stable unlisted slug and points atomically to the current validated snapshot.
 - Add explicit publish and republish behavior: create and validate a new immutable snapshot, atomically switch the publication pointer, then remove the superseded snapshot rather than retaining Lite rollback history.
 - Add a read-only hosted route that loads the current snapshot through the same mobile-first viewer components. Anyone with the unlisted link can view it; the link is not authentication and is not represented as private.
@@ -22,7 +22,7 @@ The Osaka Golden Result can already validate travel-day usefulness through GitHu
 
 ### Modified Capabilities
 
-None. This change starts only after `build-trip-runtime-v0` passes its stranger-Markdown acceptance gate and does not add Hosted tasks to that change.
+None. This change starts only after `build-trip-runtime-v0` passes External Markdown Benchmark #001 and does not add Hosted tasks to that change.
 
 ## Impact
 

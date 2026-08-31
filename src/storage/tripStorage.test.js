@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { createCanonicalExport } from "../domain/trip/export";
+import { loadOpenAIApiKey, saveOpenAIApiKey } from "./apiKeyStorage";
 import { osakaTrip } from "../fixtures/osakaTrip";
 import {
   ACTIVE_TRIP_STORAGE_KEY,
@@ -37,6 +38,16 @@ describe("tripStorage", () => {
     expect(localStorage.getItem(ACTIVE_TRIP_STORAGE_KEY)).toBeNull();
     expect(localStorage.getItem("trip-runtime:trip:x:todos")).toBeNull();
     expect(localStorage.getItem("unrelated")).toBe("keep");
+  });
+
+  it("preserves separately managed provider credentials when clearing trip data", async () => {
+    localStorage.setItem(ACTIVE_TRIP_STORAGE_KEY, JSON.stringify(osakaTrip));
+    await saveOpenAIApiKey("sk-personal");
+
+    clearLocalTripData();
+
+    expect(loadCanonicalTrip()).toBeNull();
+    await expect(loadOpenAIApiKey()).resolves.toBe("sk-personal");
   });
 
   it("surfaces storage quota failure without corrupting an existing value", () => {

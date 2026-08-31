@@ -1,14 +1,14 @@
 ## ADDED Requirements
 
 ### Requirement: Confirmed-trip publication prerequisite
-The system SHALL publish only a runtime-validated confirmed CanonicalTrip after `build-trip-runtime-v0` has passed its stranger-Markdown acceptance gate and SHALL NOT accept a ParsedTripDraft, ReviewSession, raw source, or parser response as publishable input.
+The system SHALL publish only a runtime-validated confirmed CanonicalTrip after `build-trip-runtime-v0` has passed External Markdown Benchmark #001 and SHALL NOT accept a ParsedTripDraft, ReviewSession, raw source, or parser response as publishable input.
 
 #### Scenario: Unconfirmed draft is submitted
 - **WHEN** publication receives a draft, source document, or CanonicalTrip that fails runtime validation
 - **THEN** it rejects the request without creating a snapshot, publication, or credential record
 
 ### Requirement: Positive viewer-safe projection
-The system MUST construct PublishedTripSnapshot through an explicit positive allowlist into a strict versioned schema and MUST NOT derive it by serializing CanonicalTrip and blacklisting fields. The projection SHALL exclude provenance, source evidence and locators, user override history, parser/provider data, findings, ReviewSession data, browser metadata, credentials, private notes, owner metadata, and all unknown fields.
+The system MUST construct PublishedTripSnapshot through an explicit positive allowlist into a strict versioned schema and MUST NOT derive it by serializing CanonicalTrip and blacklisting fields. The positive projection SHALL include only viewer-required Alternative/Conditional/Flexible relationships, exact links, reservation/resource distinctions, and source-derived arrival/leave-by constraints in addition to core trip facts. It SHALL exclude provenance, source evidence and locators, user override history, parser/provider data, findings, ReviewSession data, browser metadata, credentials, private notes, owner metadata, and all unknown fields.
 
 #### Scenario: CanonicalTrip gains a new private field
 - **WHEN** a valid CanonicalTrip contains a field that is not explicitly defined by the publish projection
@@ -16,7 +16,11 @@ The system MUST construct PublishedTripSnapshot through an explicit positive all
 
 #### Scenario: Viewer-required facts are projected
 - **WHEN** a valid confirmed trip is published
-- **THEN** the snapshot contains only allowlisted trip header, dates/timezone, days, viewer-safe events and transit, exact allowlisted links, reservations, and published readiness needed by the read-only viewer
+- **THEN** the snapshot contains only allowlisted trip header, dates/timezone, days, viewer-safe events and transit, semantic choice/condition relations, exact allowlisted links, reservations/resources, source-derived arrival/leave-by constraints, and published readiness needed by the read-only viewer
+
+#### Scenario: Static presentation would flatten a semantic relation
+- **WHEN** CanonicalTrip contains alternatives, a conditional transport leg, or a flexible/rest fallback
+- **THEN** the snapshot retains the allowlisted relationship needed by the viewer and does not replace it with one opaque committed display string
 
 ### Requirement: Publication lifecycle separation
 TripPublication SHALL contain only its identifier, unlisted slug, current snapshot identifier, lifecycle status, publication time, and expiry time. Published trip content SHALL exist only in PublishedTripSnapshot, and recovery verification data SHALL exist only in a separate PublicationCredential security record.

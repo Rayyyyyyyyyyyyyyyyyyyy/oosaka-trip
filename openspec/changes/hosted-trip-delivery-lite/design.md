@@ -1,6 +1,6 @@
 ## Context
 
-`build-trip-runtime-v0` produces a confirmed, browser-local CanonicalTrip after extraction, parsing, deterministic validation, evidence-backed Review, and a stranger-Markdown acceptance gate. The Osaka Golden Result already proves that the viewer can be hosted through GitHub Pages, but the generic pipeline has no safe, automatic way to turn another traveler's confirmed trip into a stable mobile endpoint.
+`build-trip-runtime-v0` produces a confirmed, browser-local CanonicalTrip after extraction, parsing, deterministic validation, evidence-backed Review, and the External Markdown Benchmark #001 acceptance gate. The Osaka Golden Result already proves that the viewer can be hosted through GitHub Pages, but the generic pipeline has no safe, automatic way to turn another traveler's confirmed trip into a stable mobile endpoint.
 
 Hosted Delivery Lite is the delivery layer, not the persistence/account layer. It introduces a minimal hosted API and durable publication store while retaining the existing viewer, keeping original sources and ReviewSession data out of hosting, and avoiding identity, email, permanent storage, and cross-device editing. Implementation MUST NOT begin until the active Markdown change passes its gate: valid/renderable canonical output, zero missing or invented critical events before Review, zero unsupported exact critical facts, and every fixture-annotated ambiguity surfaced for Review.
 
@@ -29,7 +29,7 @@ Hosted Delivery Lite is the delivery layer, not the persistence/account layer. I
 
 ### 1. Keep the current Markdown change as a hard prerequisite
 
-Hosted Delivery is designed now but implemented only after `build-trip-runtime-v0` passes stranger-Markdown acceptance. The parser benchmark keeps sanitized, annotated test artifacts for the original ParsedTripDraft, findings, user corrections, and confirmed CanonicalTrip so parser quality can be measured separately from Review recovery quality. Production ReviewSession data remains memory-only and is never retained for benchmarking.
+Hosted Delivery is designed now but implemented only after `build-trip-runtime-v0` passes External Markdown Benchmark #001. The parser benchmark keeps sanitized, annotated test artifacts for the original ParsedTripDraft, findings, user corrections, and confirmed CanonicalTrip so parser quality can be measured separately from Review recovery quality. Production ReviewSession data remains memory-only and is never retained for benchmarking.
 
 Alternative considered: add Hosted tasks to the active Markdown change. Rejected because it would allow delivery work to leave parsing or trust incomplete and would blur two independently testable capabilities.
 
@@ -54,7 +54,7 @@ Alternative considered: store the viewer payload directly on the publication. Re
 
 ### 3. Use a dedicated positive publish projection
 
-`createPublishedTripSnapshot(canonicalTrip, readinessState)` constructs every allowed field explicitly. It may reuse small projection helpers with CanonicalExport, but it has a separate schema and contract. The snapshot includes only the viewer-required trip header, dates/timezone, days, viewer-safe events and transit, exact allowlisted links, reservations, and an allowlisted `TripReadinessItem` projection captured at publish time.
+`createPublishedTripSnapshot(canonicalTrip, readinessState)` constructs every allowed field explicitly. It may reuse small projection helpers with CanonicalExport, but it has a separate schema and contract. The snapshot includes only the viewer-required trip header, dates/timezone, days, viewer-safe events and transit, Alternative/Conditional/Flexible relationships, exact allowlisted directions and restaurant links, reservation/resource distinctions, source-derived arrival/leave-by constraints, and an allowlisted `TripReadinessItem` projection captured at publish time.
 
 The projection excludes provenance, source locators or excerpts, user override history, parser/provider data, findings, ReviewSession data, browser keys, management credentials, private notes, internal owner metadata, and fields unknown to the snapshot schema. Future CanonicalTrip fields remain private until explicitly added to the positive projection and reviewed.
 
@@ -101,7 +101,7 @@ The implementation needs only publication management endpoints, unlisted snapsho
 
 ## Migration Plan
 
-1. Do not enable implementation until the Markdown stranger gate passes and its benchmark evidence is recorded.
+1. Do not enable implementation until External Markdown Benchmark #001 passes and its benchmark evidence is recorded.
 2. Select the smallest host/datastore that meets atomic pointer, expiry cleanup, cascade delete, recovery verifier, cost, and privacy requirements.
 3. Add versioned snapshot, publication, credential, and API contracts plus positive/negative projection fixtures.
 4. Deploy management and read endpoints behind a disabled publish UI; verify atomic replacement, cleanup, expiry, rate limits, and safe failures.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { kyotoSourceDocument, parsedKyotoDraft } from "../../fixtures/parsedKyotoDraft";
-import { applyReviewOverride, confirmReviewSession, createReviewSession, stableId, validateReviewDraft } from "./review";
+import { addReviewItem, applyReviewOverride, confirmReviewSession, createReviewSession, stableId, validateReviewDraft } from "./review";
 
 describe("review normalization and confirmation", () => {
   it("assigns deterministic application IDs and confirms a renderable canonical trip", () => {
@@ -63,5 +63,33 @@ describe("review normalization and confirmation", () => {
     expect(JSON.stringify(canonical)).not.toContain("operational_procedure");
     expect(canonical).not.toHaveProperty("referenceBlocks");
     expect(canonical.days[0].items[0].placeId).toMatch(/^place-/);
+  });
+
+  it("assigns distinct todo IDs to same-title reservations", () => {
+    const draft = structuredClone(parsedKyotoDraft);
+    const reservation = {
+      id: null,
+      title: "同名票券",
+      dateLabel: "OCT 3",
+      type: "activity",
+      todoLabel: "確認票券",
+      completeStatus: "Ready",
+      pendingStatus: null,
+      evidence: [{ blockId: "block-2", excerpt: "10:00 清水寺（彈性）" }],
+    };
+    draft.reservations = [reservation, structuredClone(reservation)];
+
+    const canonical = confirmReviewSession(createReviewSession(kyotoSourceDocument, draft));
+    expect(new Set(canonical.todos.map((todo) => todo.id)).size).toBe(2);
+    expect(new Set(canonical.reservations.map((item) => item.todoId)).size).toBe(2);
+  });
+
+  it("does not fabricate source evidence for a traveler-added item", () => {
+    const session = createReviewSession(kyotoSourceDocument, parsedKyotoDraft);
+    const updated = addReviewItem(session, session.draft.days[0].id, new Date("2026-01-01T00:00:00Z"));
+    const added = updated.draft.days[0].items.at(-1);
+
+    expect(added.evidence).toEqual([]);
+    expect(updated.findings.some((finding) => finding.entityId === added.id && finding.code === "missing_item_evidence")).toBe(true);
   });
 });

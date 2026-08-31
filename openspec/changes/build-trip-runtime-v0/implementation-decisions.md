@@ -19,7 +19,7 @@
 - Shared contract: both adapters use the same application-controlled conservative parser instruction, structured ParsedTripDraft semantics, Zod validation, deterministic findings, Review, and CanonicalTrip confirmation path. Provider/model/usage metadata remains transient workflow data.
 - OpenAI model and transport: pinned `gpt-5.6-sol` with reasoning effort `high` through `https://api.openai.com/v1/responses`; the key is sent in the `Authorization: Bearer` header and every request sets `store: false`.
 - Gemini model and transport: pinned `gemini-3.7-flash` through `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent`; the key is sent only in the `x-goog-api-key` header, never as a URL query parameter, and structured JSON output is validated through the shared runtime schema.
-- Model-change gate: either pinned model may change only after provider adapter tests, Parser Quality fixtures, and the unfamiliar-Markdown acceptance gate are rerun. V0 does not expose an arbitrary model-name field.
+- Model-change gate: either pinned model may change only after provider adapter tests, Parser Quality fixtures, and External Markdown Benchmark #001 are rerun. V0 does not expose an arbitrary model-name field.
 - AI Travel reference: follow its explicit API-key input, missing-key guard, provider selection, browser-local persistence, direct provider request pattern, and Google AI Studio key-creation link; do not copy its query-key transport or stale model identifiers.
 - Storage: existing OpenAI AES-GCM ciphertext remains under `trip-runtime-openai-api-key`; Gemini ciphertext uses `trip-runtime-gemini-api-key`; last provider selection uses `trip-runtime-ai-provider`. Each credential has an isolated non-extractable AES wrapping-key record in the `trip-runtime-secrets` IndexedDB database. Values are masked in the UI and removed only through the matching provider clear action or an explicitly broader clear-all-local-data action.
 - Key isolation: decrypt only the selected provider's credential for its own request. A missing selected-provider key blocks transmission even when the other provider has a stored key. Never copy or fall back between credentials.
@@ -88,10 +88,10 @@ Format expectations:
 - Automated suite: 22 tests passed. Production build passed.
 - Initial production JavaScript is 520.27 kB (160.95 kB gzip), up from 431.45 kB (135.77 kB gzip) because Zod is now on the canonical validation path. The dedicated bundle-hardening task will assess whether schema loading should be split without weakening boundary validation.
 
-## 2.9 Roadmap and stranger-acceptance gate (2026-08-30)
+## 2.9 Roadmap and External Markdown Benchmark #001 gate (2026-08-30)
 
 - V0 is the Understand + Trust layer: Source -> UnifiedSourceDocument -> ParsedTripDraft -> evidence-backed Review -> Confirmed CanonicalTrip.
-- The actual unfamiliar Markdown is a hard acceptance gate, not a later roadmap item. Before Hosted implementation, the pre-Review draft has zero missing or invented critical events, zero unsupported exact critical facts, and surfaces every fixture-annotated ambiguity.
+- Sample #23, External Markdown Benchmark #001, is a hard acceptance gate, not a later roadmap item. Before Hosted implementation, the pre-Review draft has zero missing or invented critical events, zero unsupported exact critical facts, and surfaces every fixture-annotated ambiguity.
 - Sanitized fixtures retain draft, findings, corrections, and confirmed output so Parser Quality is distinguishable from Review Recovery Quality. Production ReviewSession evidence remains memory-only and is never retained for benchmarking.
 - Hosted Delivery is the next independent change, `hosted-trip-delivery-lite`; this change adds no hosted URL, publication, recovery, expiry, account, or server task.
 - After Hosted Delivery, the first structured-format slice is a narrow Spreadsheet Travel Table change. Calendar grids, formula-heavy models, cross-sheet reconciliation, and operational workbooks remain later evidence-driven work.

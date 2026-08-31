@@ -7,13 +7,20 @@ const isoDateSchema = z.string().date();
 const localTimeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 
 export const timingSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("exact"), start: localTimeSchema, end: localTimeSchema.optional(), label: z.string().optional() }).strict(),
-  z.object({ kind: z.literal("range"), start: localTimeSchema, end: localTimeSchema, label: z.string().min(1) }).strict(),
+  z.object({ kind: z.literal("exact"), start: localTimeSchema, end: localTimeSchema.optional(), label: z.string().optional(), crossesMidnight: z.boolean().optional() }).strict(),
+  z.object({ kind: z.literal("range"), start: localTimeSchema, end: localTimeSchema, label: z.string().min(1), crossesMidnight: z.boolean().optional() }).strict(),
+  z.object({ kind: z.literal("open_ended"), start: localTimeSchema, label: z.string().min(1) }).strict(),
   z.object({ kind: z.literal("approximate"), value: localTimeSchema, label: z.string().min(1) }).strict(),
   z.object({ kind: z.literal("part_of_day"), value: z.enum(["morning", "afternoon", "evening"]), label: z.string().min(1) }).strict(),
   z.object({ kind: z.literal("all_day"), label: z.string().min(1).default("ALL DAY") }).strict(),
   z.object({ kind: z.literal("unspecified"), label: z.string().min(1) }).strict(),
 ]);
+
+export const eventRelationSchema = z.object({
+  kind: z.enum(["alternative", "conditional", "fallback"]),
+  groupId: idSchema,
+  condition: z.string().min(1).optional(),
+}).strict();
 
 export const linkSchema = z.object({
   id: idSchema,
@@ -36,16 +43,17 @@ export const eventSchema = z.object({
   flexible: z.boolean().optional(),
   optional: z.boolean().optional(),
   tentative: z.boolean().optional(),
+  relation: eventRelationSchema.optional(),
   links: z.array(linkSchema).default([]),
   flight: z.object({
-    code: z.string().min(1),
-    origin: z.string().min(1),
-    destination: z.string().min(1),
-    departure: localTimeSchema,
-    arrival: localTimeSchema,
+    code: z.string().min(1).optional(),
+    origin: z.string().min(1).optional(),
+    destination: z.string().min(1).optional(),
+    departure: localTimeSchema.optional(),
+    arrival: localTimeSchema.optional(),
     originTerminal: z.string().optional(),
     destinationTerminal: z.string().optional(),
-  }).strict().optional(),
+  }).strict().refine((flight) => Object.values(flight).some(Boolean), "Flight must contain at least one supported fact.").optional(),
 }).strict();
 
 export const transitSchema = z.object({
@@ -53,6 +61,8 @@ export const transitSchema = z.object({
   kind: z.literal("transit"),
   label: z.string().min(1),
   tip: z.string().optional(),
+  from: z.string().min(1).optional(),
+  to: z.string().min(1).optional(),
 }).strict();
 
 export const daySchema = z.object({

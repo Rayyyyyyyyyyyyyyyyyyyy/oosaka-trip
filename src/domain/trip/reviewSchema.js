@@ -83,11 +83,18 @@ export const draftEvidenceSchema = z.object({
 }).strict();
 
 const draftTimingSchema = z.object({
-  kind: z.enum(["exact", "range", "approximate", "part_of_day", "all_day", "unspecified"]),
+  kind: z.enum(["exact", "range", "open_ended", "approximate", "part_of_day", "all_day", "unspecified"]),
   start: nullableText,
   end: nullableText,
   value: nullableText,
   label: z.string().min(1),
+  crossesMidnight: z.boolean().optional(),
+}).strict();
+
+const draftRelationSchema = z.object({
+  kind: z.enum(["alternative", "conditional", "fallback"]),
+  groupId: nullableText,
+  condition: nullableText,
 }).strict();
 
 const draftLinkSchema = z.object({
@@ -114,6 +121,8 @@ export const draftItemSchema = z.object({
   type: z.enum(["flight", "hotel", "work", "activity", "restaurant", "free_time", "transport"]).nullable(),
   title: nullableText,
   place: nullableText,
+  from: nullableText.optional(),
+  to: nullableText.optional(),
   timing: draftTimingSchema.nullable(),
   details: nullableText,
   note: nullableText,
@@ -121,9 +130,10 @@ export const draftItemSchema = z.object({
   flexible: z.boolean(),
   optional: z.boolean(),
   tentative: z.boolean(),
+  relation: draftRelationSchema.nullable().optional(),
   links: z.array(draftLinkSchema),
   flight: draftFlightSchema.nullable(),
-  evidence: z.array(draftEvidenceSchema).min(1),
+  evidence: z.array(draftEvidenceSchema),
 }).strict();
 
 export const draftDaySchema = z.object({

@@ -8,7 +8,7 @@ The parser SHALL output a schema-validated ParsedTripDraft that can represent mi
 - **THEN** the draft preserves the known labels, leaves exact dates unresolved, and creates a render-blocking review issue
 
 ### Requirement: Preserve source intent and precision
-The parser MUST preserve exact, range, approximate, part-of-day, all-day, and unspecified timing semantics and SHALL distinguish optional, alternative, conditional, fallback, tentative, flexible, and unresolved intent where present.
+The parser MUST preserve exact, range, approximate, part-of-day, all-day, open-ended, cross-midnight, and unspecified timing semantics and SHALL distinguish optional, alternative, conditional, fallback, tentative, flexible, free-time, and unresolved intent where present. Normalization SHALL retain the raw source notation and MUST NOT invent a missing end time or unsupported precision.
 
 #### Scenario: Approximate time
 - **WHEN** the source says `約 10:30`
@@ -17,6 +17,17 @@ The parser MUST preserve exact, range, approximate, part-of-day, all-day, and un
 #### Scenario: Intentional flexible time
 - **WHEN** the source says `睡飽再去` or `下午自由活動`
 - **THEN** the draft preserves the flexible wording and does not invent a start time
+
+#### Scenario: Mixed and open-ended time notation
+- **WHEN** one source mixes `11:55`, `5.30`, `12點`, `七點`, and `18:30~`
+- **THEN** the parser normalizes each supported start value, retains its raw notation and precision, and represents `18:30~` with a known start and unknown end rather than rejecting or completing the range
+
+### Requirement: Interpret semantic units beyond Markdown block boundaries
+The parser SHALL treat Markdown structure as evidence rather than semantic truth and SHALL support multiple ordered semantic units inside one paragraph, list item, or blockquote-shaped route expression without automatically converting every syntax node into one event.
+
+#### Scenario: Inline route sequence contains multiple units
+- **WHEN** a paragraph contains `買 T-money > 搭機場地鐵 > 首爾車站 > 轉四號線到明洞`
+- **THEN** the parser preserves the ordered route units and their shared source reference instead of treating the paragraph as one opaque event or the separators as quotation semantics
 
 ### Requirement: Distinguish itinerary from supporting content
 The parser SHALL classify research, recommendations, references, background, runtime instructions, operational procedures, runtime-deferred decisions, reference-freshness statements, explicit intra-source references, packing, budget, expense, shopping, opening-hours tables, and candidate-place material without automatically converting mentioned places or procedural steps into itinerary events.
@@ -32,6 +43,25 @@ The parser SHALL classify research, recommendations, references, background, run
 #### Scenario: Supporting content may be travel-critical
 - **WHEN** a fixture annotates supporting content as necessary to execute the trip
 - **THEN** the parser surfaces it for Review and the acceptance result cannot count it as safely ignored merely because it is not an itinerary event
+
+#### Scenario: Parent activity contains an internal timetable
+- **WHEN** a parent activity note lists multiple venue-program times inside the activity window
+- **THEN** the parser preserves the internal timetable relation and does not automatically promote every program time into a top-level day event
+
+#### Scenario: Reservation note contains a booking release rule
+- **WHEN** a note says tickets become available four weeks before on Tuesday at 06:00
+- **THEN** the parser classifies the time as a booking-release rule rather than the event time or an already-confirmed reservation
+
+### Requirement: Preserve incomplete entities and structured dependency metadata
+The parser SHALL preserve source-supported partial entities, including flights with missing airline, flight number, airport pair, or row-level date and places identified first by an address. It SHALL keep Pass eligibility, purchase method, discount, ticket state, and reservation state as distinct source-supported metadata rather than collapsing them into one boolean or filling missing identity fields by inference.
+
+#### Scenario: Address-first place has no supported name
+- **WHEN** the source provides a street address and building floor without a supported venue name
+- **THEN** the draft retains an unresolved address-first place for Review and does not invent a business identity
+
+#### Scenario: Pass and reservation metadata differ
+- **WHEN** an event row separately indicates Pass eligibility, official-site purchase, and reservation required
+- **THEN** the draft preserves those distinctions and does not replace them with a single reserved or ticketed flag
 
 ### Requirement: Source provenance
 Every parsed semantic entity and material field SHALL retain one or more source references inside the active ReviewSession, including source identifier, locator, and sufficient source text or visual reference for review. Confirmation SHALL reduce those references to stable provenance identifiers and locators; CanonicalTrip SHALL NOT retain raw excerpts, visual payloads, complete extracted blocks, or transient confidence evidence.
@@ -81,11 +111,11 @@ The browser parse service SHALL support two concrete direct-provider adapters, O
 - **THEN** the system rejects it as a recoverable parse failure and does not create or replace a confirmed trip
 
 ### Requirement: Pinned acceptance-tested provider models
-Each provider adapter SHALL use one explicitly pinned structured-output model, and changing either model SHALL require rerunning provider adapter tests, parser-quality fixtures, and the unfamiliar-Markdown acceptance gate before production use.
+Each provider adapter SHALL use one explicitly pinned structured-output model, and changing either model SHALL require rerunning provider adapter tests, parser-quality fixtures, and External Markdown Benchmark #001 before production use.
 
 #### Scenario: Provider model changes
 - **WHEN** a pinned OpenAI or Gemini model identifier is updated
-- **THEN** the new model is not treated as production-ready until the shared fixture and stranger-Markdown acceptance checks pass
+- **THEN** the new model is not treated as production-ready until the shared fixtures and External Markdown Benchmark #001 acceptance checks pass
 
 ### Requirement: Structured parse failure behavior
 The system SHALL surface malformed output, schema mismatch, timeout, provider failure, and partial parsing as explicit recoverable states.

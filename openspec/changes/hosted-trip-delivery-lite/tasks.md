@@ -1,6 +1,6 @@
 ## 1. Gate and Hosting Decisions
 
-- [ ] 1.1 Verify and record that `build-trip-runtime-v0` passed the stranger-Markdown gate: zero missing or invented critical events, zero unsupported exact critical facts, every annotated ambiguity surfaced, valid confirmed schema, and renderable output with Parser Quality separated from Review Recovery Quality.
+- [ ] 1.1 Verify and record that `build-trip-runtime-v0` passed External Markdown Benchmark #001: zero missing or invented critical events, zero unsupported exact critical facts, every annotated ambiguity surfaced, valid confirmed schema, and renderable output with Parser Quality separated from Review Recovery Quality.
 - [ ] 1.2 Select the smallest concrete hosting and datastore combination that supports atomic publication-pointer updates, cascade deletion, bounded expiry cleanup, secret verification, rate limiting, privacy constraints, acceptable cost, and integration with the existing GitHub Pages frontend; record the decision and rollback boundary.
 - [ ] 1.3 Set and document the beta's exact minimum post-publish window, post-trip retention window, maximum recovery-authorized extension, cleanup delay, slug entropy, recovery-secret entropy, and rate limits.
 - [ ] 1.4 Define the one-time recovery-key text/download format without embedding trip payloads, viewer credentials, or secrets in logs, analytics, URLs, previews, or filenames.
@@ -8,9 +8,9 @@
 ## 2. Publication Domain and Projection
 
 - [ ] 2.1 Add strict versioned runtime schemas and JSDoc types for PublishedTripSnapshot, TripPublication, PublicationCredential, publication status, and published TripReadinessItem; keep lifecycle, content, and credential records separate.
-- [ ] 2.2 Implement `createPublishedTripSnapshot` as a positive allowlist projection independent from CanonicalExport, explicitly projecting only viewer-required trip facts, exact safe links, reservations, and readiness captured at publish time.
+- [ ] 2.2 Implement `createPublishedTripSnapshot` as a positive allowlist projection independent from CanonicalExport, explicitly projecting only viewer-required trip facts, Alternative/Conditional/Flexible relations, exact safe links, reservation/resource distinctions, source-derived arrival/leave-by constraints, and readiness captured at publish time.
 - [ ] 2.3 Add negative privacy fixtures proving provenance, source locators/excerpts, override history, ReviewSession data, findings, parser/provider data, browser metadata, credentials, private notes, owner metadata, and unknown future CanonicalTrip fields never enter snapshots or responses.
-- [ ] 2.4 Test that optional/flexible events never become incomplete readiness work and that published readiness uses only reservation, ticket, document, payment, or other dependency with needed, ready, or unknown state.
+- [ ] 2.4 Test that optional/flexible events never become incomplete readiness work, Alternative/Conditional/Flexible and rest/fallback choices remain distinct rather than flattening into a committed sequence, source-derived deadlines remain available to runtime selectors, and published readiness uses only reservation, ticket, document, payment, or other dependency with needed, ready, or unknown state.
 - [ ] 2.5 Validate snapshots at creation, persistence, service response, and viewer load boundaries and reject unsupported snapshot versions without falling back to CanonicalTrip serialization.
 
 ## 3. Hosted Publication Service
@@ -28,7 +28,7 @@
 - [ ] 4.1 Add publish confirmation that explains anyone with the link can view the trip, the URL is unlisted rather than private, the exact expiry, read-only readiness, and the recovery-key limitation before transmission.
 - [ ] 4.2 Add accessible post-publish controls for copying the stable URL and copying/downloading the one-time recovery key with announced success, predictable focus, and no pointer-only requirement.
 - [ ] 4.3 Add recovery-authorized republish, revoke, delete, bounded extension, and optional recovery-secret rotation controls with explicit destructive confirmation and sanitized errors.
-- [ ] 4.4 Add the hosted slug route that validates PublishedTripSnapshot and reuses the existing Overview, Today, Day, Reservations, Date Rail, optional/flexible/all-day, exact-link, and honest NOW/NEXT viewer components.
+- [ ] 4.4 Add the hosted slug route that validates PublishedTripSnapshot and reuses the existing Overview, Today, Day, Reservations, Date Rail, optional/flexible/all-day, exact directions-link, and honest NOW/NEXT/arrive-by/source-derived-leave-by viewer components.
 - [ ] 4.5 Make hosted readiness visibly read-only and ensure the unlisted route cannot mutate CanonicalTrip, readiness, reservations, publication metadata, credentials, or any server record.
 - [ ] 4.6 Add no-index/no-follow directives, safe external-link attributes, generic missing/revoked/deleted/expired/invalid states, and scoped transient-service failure behavior without exposing trip content or management hints.
 
@@ -38,7 +38,7 @@
 - [ ] 5.2 Test initial-publish rollback, concurrent republish, atomic pointer switching, candidate cleanup, superseded-snapshot deletion, idempotent revoke/delete/expiry, and cascade deletion under injected storage and network failures.
 - [ ] 5.3 Verify no original file, UnifiedSourceDocument, source excerpt/locator, ReviewSession, parser response, OpenAI key, production benchmark artifact, private canonical field, management secret, or superseded snapshot survives in hosted storage, responses, logs, analytics, URLs, or static assets.
 - [ ] 5.4 Verify active, republished, revoked, deleted, expired, malformed, unsupported-version, and service-unavailable routes through automated integration tests and real hosted API checks.
-- [ ] 5.5 Verify publish, recovery download, management controls, and the hosted viewer at mobile and desktop widths for keyboard operation, announcements, focus, touch targets, exact links, runtime timezone behavior, minute refresh, and no browser-console errors.
+- [ ] 5.5 Verify publish, recovery download, management controls, and the hosted viewer at mobile and desktop widths for keyboard operation, announcements, focus, touch targets, exact links, runtime timezone behavior, minute refresh, source-supported NOW/NEXT/arrive-by/leave-by behavior, preservation of Alternative/Conditional/Flexible semantics, and no browser-console errors.
 
 ## 6. Deployment and Bounded Beta Handoff
 

@@ -122,7 +122,7 @@ function finding(code, severity, entityId, message, sequence = 0) {
 }
 
 function timingStart(item) {
-  if (item.timing?.kind === "exact" || item.timing?.kind === "range") return item.timing.start;
+  if (["exact", "range", "open_ended"].includes(item.timing?.kind)) return item.timing.start;
   if (item.timing?.kind === "approximate") return item.timing.value;
   return null;
 }
@@ -159,6 +159,8 @@ export function validateReviewDraft(draft, sourceDocument) {
       if (!item.timing) findings.push(finding("missing_timing_semantics", "blocking", item.id, "請確認時間是確切、約略、時段、全天或未指定。", itemIndex));
       if (item.timing?.kind === "exact" && !TIME_PATTERN.test(item.timing.start ?? "")) findings.push(finding("missing_exact_time", "blocking", item.id, "確切時間需要有效的 HH:mm 開始時間。", itemIndex));
       if (item.timing?.kind === "range" && (!TIME_PATTERN.test(item.timing.start ?? "") || !TIME_PATTERN.test(item.timing.end ?? ""))) findings.push(finding("invalid_time_range", "blocking", item.id, "時間範圍需要有效的開始與結束時間。", itemIndex));
+      if (item.timing?.kind === "range" && TIME_PATTERN.test(item.timing.start ?? "") && TIME_PATTERN.test(item.timing.end ?? "") && item.timing.end < item.timing.start && !item.timing.crossesMidnight) findings.push(finding("unmarked_cross_midnight", "blocking", item.id, "結束時間早於開始時間；若為跨日行程請明確標記。", itemIndex));
+      if (item.timing?.kind === "open_ended" && !TIME_PATTERN.test(item.timing.start ?? "")) findings.push(finding("missing_open_ended_start", "blocking", item.id, "開放式時間需要有效的 HH:mm 開始時間，但不應虛構結束時間。", itemIndex));
       if (item.timing?.kind === "approximate" && !TIME_PATTERN.test(item.timing.value ?? "")) findings.push(finding("missing_approximate_time", "blocking", item.id, "約略時間需要有效的 HH:mm 值。", itemIndex));
       if (item.timing?.kind === "part_of_day" && !["morning", "afternoon", "evening"].includes(item.timing.value)) findings.push(finding("invalid_part_of_day", "blocking", item.id, "時段必須是 morning、afternoon 或 evening。", itemIndex));
       const time = timingStart(item);
@@ -175,7 +177,7 @@ export function validateReviewDraft(draft, sourceDocument) {
       if (!item.evidence.some((entry) => knownBlocks.has(entry.blockId))) findings.push(finding("missing_item_evidence", "warning", item.id, "此項目沒有可用來源證據；僅在你已人工補上時保留。", itemIndex));
       if (item.type === "flight") {
         const required = ["code", "origin", "destination", "departure", "arrival"];
-        if (!item.flight || required.some((field) => !item.flight[field])) findings.push(finding("incomplete_flight", "blocking", item.id, "航班需要來源支持的班號、起訖機場與起降時間。", itemIndex));
+        if (!item.flight || required.some((field) => !item.flight[field])) findings.push(finding("incomplete_flight", "warning", item.id, "航班資料不完整；保留來源支持的欄位，並在 Review 中確認缺漏。", itemIndex));
         if (item.flight?.departure && !TIME_PATTERN.test(item.flight.departure)) findings.push(finding("invalid_flight_departure", "blocking", item.id, "航班起飛時間格式不正確。", itemIndex));
         if (item.flight?.arrival && !TIME_PATTERN.test(item.flight.arrival)) findings.push(finding("invalid_flight_arrival", "blocking", item.id, "航班抵達時間格式不正確。", itemIndex));
         if (item.flight?.departure && item.flight?.arrival && item.flight.arrival < item.flight.departure) findings.push(finding("possible_midnight_rollover", "warning", item.id, "抵達時間早於起飛時間；請確認是否跨日或跨時區。", itemIndex));
@@ -233,7 +235,7 @@ export function applyReviewOverride(session, entityId, field, value, now = new D
 export function addReviewItem(session, dayId, now = new Date()) {
   const day = session.draft.days.find((candidate) => candidate.id === dayId);
   if (!day) return session;
-  const evidence = day.evidence.length ? day.evidence : [{ blockId: session.sourceDocument.blocks[0]?.id ?? "user-correction", excerpt: "Traveler-added during review" }];
+  const evidence = [];
   const id = stableId("event", dayId, "user-added", now.toISOString());
   const item = { id, kind: "event", type: "activity", title: "新增行程", place: null, timing: { kind: "unspecified", start: null, end: null, value: null, label: "時間未指定" }, details: null, note: null, status: null, flexible: false, optional: false, tentative: false, links: [], flight: null, evidence };
   const draft = { ...session.draft, days: session.draft.days.map((candidate) => candidate.id === dayId ? { ...candidate, items: [...candidate.items, item] } : candidate) };
@@ -248,11 +250,18 @@ export function removeReviewItem(session, itemId, now = new Date()) {
 }
 
 function canonicalTiming(timing) {
-  if (timing.kind === "exact") return { kind: "exact", start: timing.start, ...(timing.end ? { end: timing.end } : {}), ...(timing.label ? { label: timing.label } : {}) };
-  if (timing.kind === "range") return { kind: "range", start: timing.start, end: timing.end, label: timing.label };
+  if (timing.kind === "exact") return { kind: "exact", start: timing.start, ...(timing.end ? { end: timing.end } : {}), ...(timing.label ? { label: timing.label } : {}), ...(timing.crossesMidnight ? { crossesMidnight: true } : {}) };
+  if (timing.kind === "range") return { kind: "range", start: timing.start, end: timing.end, label: timing.label, ...(timing.crossesMidnight ? { crossesMidnight: true } : {}) };
+  if (timing.kind === "open_ended") return { kind: "open_ended", start: timing.start, label: timing.label };
   if (timing.kind === "approximate") return { kind: "approximate", value: timing.value, label: timing.label };
   if (timing.kind === "part_of_day") return { kind: "part_of_day", value: timing.value, label: timing.label };
   return { kind: timing.kind, label: timing.label };
+}
+
+function canonicalFlight(flight) {
+  if (!flight) return null;
+  const supported = Object.fromEntries(Object.entries(flight).filter(([, value]) => value));
+  return Object.keys(supported).length ? supported : null;
 }
 
 export class ReviewValidationError extends Error {
@@ -268,7 +277,7 @@ export function confirmReviewSession(session) {
   const blockers = findings.filter((item) => item.severity === "blocking");
   if (blockers.length) throw new ReviewValidationError(blockers);
   const { draft, sourceDocument } = session;
-  const todos = draft.reservations.map((reservation) => ({ id: stableId("todo", draft.trip.id, reservation.title), label: reservation.todoLabel, defaultDone: false }));
+  const todos = draft.reservations.map((reservation) => ({ id: stableId("todo", draft.trip.id, reservation.id), label: reservation.todoLabel, defaultDone: false }));
   const canonical = {
     schemaVersion: 1,
     id: draft.trip.id,
@@ -284,7 +293,7 @@ export function confirmReviewSession(session) {
       title: day.title,
       ...(day.subtitle ? { subtitle: day.subtitle } : {}),
       ...(day.theme ? { theme: day.theme } : {}),
-      items: day.items.map((item) => item.kind === "transit" ? { id: item.id, kind: "transit", label: item.title, ...(item.note ? { tip: item.note } : {}) } : {
+      items: day.items.map((item) => item.kind === "transit" ? { id: item.id, kind: "transit", label: item.title, ...(item.note ? { tip: item.note } : {}), ...(item.from ? { from: item.from } : {}), ...(item.to ? { to: item.to } : {}) } : {
         id: item.id,
         kind: "event",
         type: item.type,
@@ -298,8 +307,9 @@ export function confirmReviewSession(session) {
         ...(item.flexible ? { flexible: true } : {}),
         ...(item.optional ? { optional: true } : {}),
         ...(item.tentative ? { tentative: true } : {}),
+        ...(item.relation ? { relation: { kind: item.relation.kind, groupId: item.relation.groupId || stableId("relation", day.id, item.relation.kind), ...(item.relation.condition ? { condition: item.relation.condition } : {}) } } : {}),
         links: item.links.map((link) => ({ id: link.id, type: link.type, url: link.url, sourceProvided: true })),
-        ...(item.flight ? { flight: Object.fromEntries(Object.entries(item.flight).filter(([, value]) => value)) } : {}),
+        ...(canonicalFlight(item.flight) ? { flight: canonicalFlight(item.flight) } : {}),
       }),
     })),
     reservations: draft.reservations.map((reservation, index) => ({

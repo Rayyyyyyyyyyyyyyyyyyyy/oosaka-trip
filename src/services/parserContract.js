@@ -12,7 +12,7 @@ TRUTHFULNESS
 - Extract only facts and intent supported by the supplied blocks.
 - Never invent dates, exact times, places, routes, durations, bookings, ticket states, weather, or recommendations.
 - Use null or an ambiguity note whenever a value is missing or cannot be resolved.
-- Preserve exact, range, approximate, part-of-day, all-day, and unspecified timing precisely.
+- Preserve exact, range, open-ended, approximate, part-of-day, all-day, cross-midnight, and unspecified timing precisely. Keep the source notation in label.
 - Preserve optional, flexible, conditional, fallback, alternative, and tentative intent.
 - A named place in research/reference material is not automatically an itinerary event.
 - Preserve supporting content in referenceBlocks and classify it with the most specific supported classification: ${REFERENCE_BLOCK_CLASSIFICATIONS.join(", ")}.
@@ -50,26 +50,40 @@ const evidenceArray = { type: "array", minItems: 1, items: evidenceSchema };
 const timingSchema = {
   type: ["object", "null"],
   additionalProperties: false,
-  required: ["kind", "start", "end", "value", "label"],
+  required: ["kind", "start", "end", "value", "label", "crossesMidnight"],
   properties: {
-    kind: { enum: ["exact", "range", "approximate", "part_of_day", "all_day", "unspecified"] },
+    kind: { enum: ["exact", "range", "open_ended", "approximate", "part_of_day", "all_day", "unspecified"] },
     start: nullableString,
     end: nullableString,
     value: nullableString,
     label: { type: "string", minLength: 1 },
+    crossesMidnight: { type: "boolean" },
+  },
+};
+
+const relationSchema = {
+  type: ["object", "null"],
+  additionalProperties: false,
+  required: ["kind", "groupId", "condition"],
+  properties: {
+    kind: { enum: ["alternative", "conditional", "fallback"] },
+    groupId: nullableString,
+    condition: nullableString,
   },
 };
 
 const itemSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["id", "kind", "type", "title", "place", "timing", "details", "note", "status", "flexible", "optional", "tentative", "links", "flight", "evidence"],
+  required: ["id", "kind", "type", "title", "place", "from", "to", "timing", "details", "note", "status", "flexible", "optional", "tentative", "relation", "links", "flight", "evidence"],
   properties: {
     id: { type: "null" },
     kind: { enum: ["event", "transit"] },
     type: { enum: ["flight", "hotel", "work", "activity", "restaurant", "free_time", "transport", null] },
     title: nullableString,
     place: nullableString,
+    from: nullableString,
+    to: nullableString,
     timing: timingSchema,
     details: nullableString,
     note: nullableString,
@@ -77,6 +91,7 @@ const itemSchema = {
     flexible: { type: "boolean" },
     optional: { type: "boolean" },
     tentative: { type: "boolean" },
+    relation: relationSchema,
     links: {
       type: "array",
       items: {

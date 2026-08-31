@@ -41,14 +41,18 @@ The Viewer SHALL open directly only from a valid persisted confirmed CanonicalTr
 - **THEN** persistence replaces the active trip atomically and the Viewer opens the new confirmed trip
 
 ### Requirement: Honest runtime state
-The viewer SHALL show NOW, NEXT, and leave-by only when canonical timing and relation data support the conclusion and SHALL refresh time-derived state at least once per minute.
+The viewer SHALL show NOW, NEXT, arrive-by, and source-derived leave-by only when canonical timing and relation data support the conclusion and SHALL refresh time-derived state at least once per minute.
 
 #### Scenario: Timing is insufficient
 - **WHEN** the selected day contains only flexible or imprecise event times
 - **THEN** the Today view explains that precise NOW cannot be determined and does not fabricate one
 
+#### Scenario: Source supplies an arrival deadline
+- **WHEN** a canonical event records a source-supported requirement to arrive by 16:00 for a 16:30 reservation
+- **THEN** Today may elevate the 16:00 arrive-by constraint and derive leave-by only from supported travel relation data rather than burying or inventing the constraint
+
 ### Requirement: Semantic day rendering
-The viewer SHALL preserve event types, flexible/free-time treatment, optional content outside the main timeline, transit as connective tissue, notes, and density-aware all-day layouts.
+The viewer SHALL preserve event types, flexible/free-time treatment, optional content outside the main timeline, alternative and conditional relationships, transit as connective tissue, notes, and density-aware all-day layouts. It MUST NOT flatten distinct alternatives, fallback/rest choices, or conditional transport into a misleading single committed sequence merely to match a static response-page layout.
 
 #### Scenario: Optional place
 - **WHEN** an entity is explicitly optional
@@ -57,6 +61,10 @@ The viewer SHALL preserve event types, flexible/free-time treatment, optional co
 #### Scenario: Single all-day activity
 - **WHEN** a day contains one primary all-day activity
 - **THEN** the viewer uses the all-day presentation instead of forcing a detailed timeline
+
+#### Scenario: Meal has alternatives and a rest fallback
+- **WHEN** canonical data represents two dinner options plus a return-to-hotel fallback
+- **THEN** the viewer presents them as related choices and does not imply that all three will occur
 
 ### Requirement: Conditional overview sections
 The viewer SHALL omit flights, accommodation, reservations, links, and other sections that have no supported canonical data and SHALL not display empty or invented cards.

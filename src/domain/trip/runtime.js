@@ -50,6 +50,23 @@ export function selectRuntimeCandidates(day, runtimeMinutes) {
     if (!event.timing.end) return false;
     return toMinutes(event.timing.start) <= runtimeMinutes && runtimeMinutes < toMinutes(event.timing.end);
   }) ?? null;
-  const next = exactEvents.find((event) => toMinutes(event.timing.start) > runtimeMinutes) ?? null;
+  const next = exactEvents
+    .filter((event) => toMinutes(event.timing.start) > runtimeMinutes)
+    .sort((left, right) => toMinutes(left.timing.start) - toMinutes(right.timing.start))[0] ?? null;
   return { current, next };
+}
+
+function supportedStart(item) {
+  return ["exact", "range", "open_ended"].includes(item.timing?.kind)
+    ? item.timing.start
+    : null;
+}
+
+export function selectNextConfirmedEvent(trip, runtime) {
+  return trip.days
+    .flatMap((day) => day.items
+      .filter((item) => item.kind === "event" && !item.optional && !item.tentative && supportedStart(item))
+      .map((event) => ({ date: day.date, event })))
+    .filter(({ date, event }) => date > runtime.date || (date === runtime.date && toMinutes(supportedStart(event)) > runtime.minutes))
+    .sort((left, right) => left.date.localeCompare(right.date) || toMinutes(supportedStart(left.event)) - toMinutes(supportedStart(right.event)))[0] ?? null;
 }

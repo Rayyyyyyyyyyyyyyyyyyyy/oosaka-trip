@@ -11,23 +11,31 @@ const labels = {
 
 export function MarkdownImportControls({ state, dispatch, onExtracted, onRetry, onCancel }) {
   const messageRef = useRef(null);
+  const latestRequestIdRef = useRef(null);
   const [dragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     if (state.error) messageRef.current?.focus();
   }, [state.error]);
 
+  useEffect(() => () => {
+    latestRequestIdRef.current = null;
+  }, []);
+
   const processFile = async (file) => {
     if (!file) return;
     const requestId = crypto.randomUUID();
+    latestRequestIdRef.current = requestId;
     dispatch({ type: "SELECT_FILE", requestId, file });
     try {
       validateMarkdownFile(file);
       dispatch({ type: "VALIDATED", requestId });
       const sourceDocument = await extractMarkdownFile(file);
+      if (latestRequestIdRef.current !== requestId) return;
       dispatch({ type: "EXTRACTED", requestId, sourceDocument });
       onExtracted?.(sourceDocument, requestId);
     } catch (error) {
+      if (latestRequestIdRef.current !== requestId) return;
       dispatch({ type: "FAIL", requestId, recoverTo: state.tripId ? "viewing" : "idle", error: error.message });
     }
   };

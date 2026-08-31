@@ -1,6 +1,6 @@
 ## Context
 
-The repository is a React 19/Vite 7 JavaScript application whose Osaka-specific `tripData.js` drives a proven mobile-first result viewer. The V0 gap is the trustworthy conversion of a second traveler's existing Markdown itinerary into data that can drive that same viewer. The 22-sample research corpus informs a conservative Markdown V0 model; sample count is not participant count, and the corresponding source files live under `temp/Odata/`. After gated Hosted Delivery, V0.2 is limited to narrow Spreadsheet Travel Table ingestion; advanced spreadsheet, structured/visual extraction, and still-evolving cross-format canonical relationships remain later evidence-driven concerns.
+The repository is a React 19/Vite 7 JavaScript application whose Osaka-specific `tripData.js` drives a proven mobile-first result viewer. The V0 gap is the trustworthy conversion of a second traveler's existing Markdown itinerary into data that can drive that same viewer. The 24-sample research corpus informs a conservative Markdown V0 model; sample count is not participant count, and the corresponding source files live under `temp/Odata/`. Sample #23 is External Markdown Benchmark #001 and the exact V0 acceptance fixture. After gated Hosted Delivery, V0.2 is limited to narrow Spreadsheet Travel Table ingestion; advanced spreadsheet, structured/visual extraction, and still-evolving cross-format canonical relationships remain later evidence-driven concerns.
 
 The current implementation is concentrated in `src/main.jsx`, and `src/tripData.js` mixes trip facts with Osaka-specific presentation fields. It also treats the bundled Osaka fixture as an active trip, so the application has no real empty/setup entry state. V0 therefore needs an incremental boundary extraction, not a second viewer, a framework rewrite, or a speculative generic platform. This personal deployment follows the local AI Travel setup pattern: each traveler selects OpenAI or Gemini and supplies that provider's own API key, the static app encrypts each credential separately for that browser, and the browser calls the selected provider directly. No shared project credential or parser backend is deployed.
 
@@ -52,13 +52,15 @@ Alternative considered: redesign the application around a comprehensive platform
 
 ### 2. Use a minimal Markdown-backed UnifiedSourceDocument
 
-The Markdown adapter SHALL return a provider-neutral `UnifiedSourceDocument` made from a small discriminated set of ordered `text` and `table` blocks. A block carries its content or structured cells, a stable locator, source links, and only the structural hints demonstrated necessary by Markdown fixtures.
+The Markdown adapter SHALL return a provider-neutral `UnifiedSourceDocument` made from a small discriminated set of ordered `text` and `table` blocks. A block carries its content or structured cells, a stable locator, source links, emphasis/structural hints, and relative image or asset references demonstrated by Markdown fixtures. Missing relative assets remain explicit unavailable references and never fail extraction of the surrounding itinerary.
 
 V0 does not add DOCX, XLSX, PDF, OCR, or image-processing dependencies. The contract may expand in later input changes from corpus evidence, beginning with a narrow Spreadsheet Travel Table slice; this change does not pre-model every possible document structure.
 
 Samples #19 and #20 add evidence for formulas versus calculated values, counterfactual comparisons, multi-day resource economics, region/city phases, phase-scoped participants, source-day versus calendar-date grouping, `24:00` source notation, meal-block candidate layers, weak emoji markup, and event-level costs. Samples #21 and #22 add contextual operational instructions, digital workflows, explicit intra-workbook references, option-specific downstream actions, runtime-deferred decisions, reference freshness, and time-sensitive supporting knowledge.
 
-The research `Core / Preserve / Defer` layer is a cross-format product-modeling decision aid. It does not automatically enlarge this Markdown-only implementation whenever an XLSX workbook reveals a new semantic. V0 classifies supporting content, preserves its source trace during Review, and avoids turning it into itinerary events. It does not add a generic knowledge-base UI, procedure state machine, or freshness verifier; standalone runtime-instruction persistence remains a later evidence-driven design decision unless a Markdown acceptance fixture proves it is necessary for the stranger gate. The V0 runtime schema is therefore not a frozen cross-format canonical model.
+Sample #23 adds the Markdown V0 edges that syntax is structural evidence rather than semantic truth, one source can mix colon/dot/Arabic-`點`/Chinese-numeral time notation, a flight can be identifiable with incomplete fields, a place can begin with only an address, missing relative image assets are recoverable, and one paragraph can contain multiple route or event units. Sample #24 adds open-ended time as a Core timing semantic and reinforces parent-activity internal timetables, booking-release rules, and structured Pass/ticket/reservation metadata as distinctions that must be preserved without promoting every noted time into a top-level event.
+
+The research `Core / Preserve / Defer` layer is a cross-format product-modeling decision aid. It does not automatically add a dedicated product surface whenever an XLSX workbook reveals a new semantic. V0 implements the Core distinctions required not to distort Markdown, including cross-midnight and open-ended time, and classifies Preserve content with source trace while avoiding eventization. It does not add a generic knowledge-base UI, venue-program engine, reservation automation, procedure state machine, or freshness verifier. The V0 runtime schema is therefore not a frozen cross-format canonical model.
 
 Alternative considered: convert Markdown to plain text. Rejected because it loses headings, tables, checkboxes, links, and source order that provide useful parsing evidence.
 
@@ -75,7 +77,7 @@ source bytes -> ReviewSession -> CanonicalTrip -> CanonicalExport
 - `CanonicalTrip` owns only confirmed travel facts, traveler overrides, stable entity IDs, and stable provenance identifiers/locators. It MUST NOT contain source bytes, full extracted blocks, raw excerpts, model responses, or transient confidence/evidence objects.
 - `CanonicalExport` is created by an explicit allowlist projection from `CanonicalTrip`. It excludes source evidence, provider details, transient review state, and browser-only metadata.
 
-Non-itinerary research, recommendation, background, runtime-instruction, operational-procedure, reference-freshness, and other supporting blocks remain in `ReviewSession` or draft classification. They retain source trace and MUST be surfaced rather than silently converted into events, but they do not enlarge `CanonicalTrip` merely because the parser saw them. If a Markdown acceptance fixture shows that dropping a supporting block would omit critical travel intent, the change must resolve that gap explicitly before passing the stranger gate rather than silently treating the block as non-critical.
+Non-itinerary research, recommendation, background, runtime-instruction, operational-procedure, reference-freshness, and other supporting blocks remain in `ReviewSession` or draft classification. They retain source trace and MUST be surfaced rather than silently converted into events, but they do not enlarge `CanonicalTrip` merely because the parser saw them. If External Markdown Benchmark #001 shows that dropping a supporting block would omit critical travel intent, the change must resolve that gap explicitly before passing its acceptance gate rather than silently treating the block as non-critical.
 
 ### 4. Separate canonical facts from presentation derivation
 
@@ -108,7 +110,7 @@ Alternative considered: introduce XState or a global state store. Rejected becau
 
 The browser calls provider-neutral `parseTrip(request)` through `src/services/parseTrip.js`. A small explicit switch selects an OpenAI or Gemini adapter; both reuse one conservative parser instruction, structured-output semantics, ParsedTripDraft runtime schema, deterministic validation, and Review path. Provider-specific request/response translation and transient usage/error normalization stay inside the adapter boundary. Provider choice, model identifiers, and response metadata are excluded from CanonicalTrip and CanonicalExport.
 
-The OpenAI adapter uses the Responses API at `https://api.openai.com/v1/responses`, bearer authentication, pinned `gpt-5.6-sol` with reasoning effort `high`, and `store: false` on every request. The Gemini adapter uses `generateContent` at `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent`, the `x-goog-api-key` header rather than a query parameter, pinned `gemini-3.7-flash`, and structured JSON output. Both responses are untrusted until decoded and validated by the shared ParsedTripDraft runtime schema. A pinned model changes only after parser-quality and stranger-Markdown acceptance fixtures are rerun.
+The OpenAI adapter uses the Responses API at `https://api.openai.com/v1/responses`, bearer authentication, pinned `gpt-5.6-sol` with reasoning effort `high`, and `store: false` on every request. The Gemini adapter uses `generateContent` at `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent`, the `x-goog-api-key` header rather than a query parameter, pinned `gemini-3.7-flash`, and structured JSON output. Both responses are untrusted until decoded and validated by the shared ParsedTripDraft runtime schema. A pinned model changes only after parser-quality and External Markdown Benchmark #001 acceptance fixtures are rerun.
 
 The traveler supplies a personal key for the selected provider through Home. Existing OpenAI ciphertext remains under `trip-runtime-openai-api-key`; Gemini ciphertext uses `trip-runtime-gemini-api-key`; the last provider selection is stored separately from trip data. Each ciphertext has an isolated non-extractable wrapping-key record in IndexedDB, is decrypted only for its own adapter at request time, and has its own masked status and clear action. One provider's missing key never falls back to the other's. Clearing trip data does not silently clear credentials; provider-key clearing and clear-all require separately scoped confirmation.
 
@@ -150,11 +152,11 @@ Implementation proceeds in independently runnable slices:
 
 Tests are added at stable boundaries: runtime schemas and validators, the Markdown adapter, selectors/runtime derivation, reducer transitions, storage/import-export, and user-critical flows. Markdown fixtures measure critical-field accuracy, false/missing events, hallucination, correction count, renderability, and time to viewer. Chunking or new abstractions are added only after measurements show the simple path is insufficient.
 
-### 12. Gate Hosted Delivery on stranger-Markdown trust
+### 12. Gate Hosted Delivery on External Markdown Benchmark #001
 
 This change ends at a locally confirmed and renderable CanonicalTrip. It MUST NOT add PublishedTripSnapshot, TripPublication, hosted URL, recovery-secret, expiry, account, or hosting implementation. Those belong to the separate `hosted-trip-delivery-lite` change and may be designed or spiked without blocking this change.
 
-Before Hosted Delivery implementation begins, an unfamiliar Markdown itinerary MUST pass an annotated acceptance gate: the original pre-Review draft has zero missing critical events, zero invented critical events, zero unsupported exact critical dates/times/places, every fixture-annotated ambiguity is surfaced for Review, canonical validation passes after correction, and the result renders through the same viewer.
+Before Hosted Delivery implementation begins, External Markdown Benchmark #001 (Sample #23) MUST pass its annotated acceptance gate: the original pre-Review draft has zero missing critical events, zero invented critical events, zero unsupported exact critical dates/times/places, every fixture-annotated ambiguity is surfaced for Review, canonical validation passes after correction, and the result renders through the same viewer.
 
 Sanitized benchmark artifacts preserve four distinct layers for evaluation:
 
@@ -184,7 +186,7 @@ Parser Quality compares the original draft with semantic fixture assertions; Rec
 4. Add the reducer-owned import/review shell and complete the text-format vertical slice.
 5. Add Home/Viewer entry routing and the two concrete provider adapters while preserving the existing encrypted OpenAI key and confirmed trip.
 6. Enable real model transmission only after explicit provider-specific BYOK disclosure, isolated local-key controls, request limits, OpenAI `store: false`, Gemini header authentication, error sanitization, and no-URL/no-log/no-export checks are verified.
-7. Run both-provider fixtures, second-user Markdown, accessibility, mobile/desktop, reload/clear, production build, bundle, and console acceptance.
+7. Run both-provider fixtures, External Markdown Benchmark #001, accessibility, mobile/desktop, reload/clear, production build, bundle, and console acceptance.
 
 Rollback keeps the canonical Osaka fixture and old checklist key readable. Upload/parse entry points can be disabled without removing the static viewer.
 
@@ -194,5 +196,5 @@ Rollback keeps the canonical Osaka fixture and old checklist key readable. Uploa
 - Home is shown only when no persisted confirmed trip is active or when replacement import is explicitly started; a confirmed trip bypasses Home, and replacement is atomic after Review confirmation.
 - Markdown source, extraction, request, timeout, and retry limits are defined in `implementation-decisions.md`.
 - `ReviewSession` is memory-only and is discarded on reload, navigation away, or tab close.
-- Stranger-Markdown acceptance is the hard prerequisite for Hosted Delivery; Hosted implementation remains a separate change.
+- External Markdown Benchmark #001 acceptance is the hard prerequisite for Hosted Delivery; Hosted implementation remains a separate change.
 - Parser Quality and Review Recovery Quality are measured separately from sanitized benchmark artifacts, while production review evidence retains the memory-only policy.

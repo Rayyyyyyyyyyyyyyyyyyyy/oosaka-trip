@@ -34,11 +34,22 @@ The system MUST validate detected Markdown type, configured byte limit, emptines
 - **THEN** the system stops before model parsing and displays a specific recoverable error without replacing or making the existing confirmed trip unavailable
 
 ### Requirement: Structure-preserving Markdown extraction
-The system SHALL convert accepted Markdown into a minimal Unified Source Document made from ordered text and table blocks that preserve headings, paragraphs, lists, checkboxes, tables, links, source order, and stable locators rather than flattening the file into undifferentiated text.
+The system SHALL convert accepted Markdown into a minimal Unified Source Document made from ordered text and table blocks that preserve headings, paragraphs, lists, checkboxes, tables, links, emphasis hints, relative image/asset references, source order, raw syntax where semantic interpretation may differ from Markdown structure, and stable locators rather than flattening the file into undifferentiated text.
 
 #### Scenario: Markdown itinerary with mixed structure
 - **WHEN** a Markdown itinerary contains headings, checklist items, a day table, free text, and links
 - **THEN** extraction retains those roles, their order, exact link targets, and source locations for parsing and Review
+
+#### Scenario: Relative image asset is unavailable
+- **WHEN** an accepted Markdown file references `image.png` or another relative asset that was not uploaded
+- **THEN** extraction preserves the asset path, source locator, and unavailable state and continues extracting the surrounding itinerary
+
+### Requirement: Markdown syntax remains structural evidence
+The extractor SHALL preserve enough raw representation and source order for semantic parsing to reinterpret Markdown syntax when the travel meaning differs from the Markdown AST. It MUST NOT irreversibly treat blockquote depth, one paragraph, or one list item as exactly one semantic itinerary unit.
+
+#### Scenario: Route sequence resembles blockquote syntax
+- **WHEN** the source contains `A > B > C` or a `>>>` transit instruction
+- **THEN** extraction preserves the raw sequence and locator so semantic parsing can interpret route order or contextual instructions rather than assuming blockquote meaning
 
 ### Requirement: Safe source handling
 The extractor MUST treat Markdown content and links as inert untrusted data, MUST NOT execute HTML, scripts, embedded links, or source instructions, and MUST bound extraction resource use.

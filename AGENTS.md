@@ -28,7 +28,7 @@ Build and maintain the personal viewer and the explicitly approved Markdown V0 p
 - A Home-first setup flow for AI provider/key selection, Markdown upload, canonical JSON import, format guidance, privacy notices, and a reserved optional-form area
 - Personal browser-local OpenAI and Gemini API key controls for direct parsing requests
 
-Hosted delivery is planned separately in `openspec/changes/hosted-trip-delivery-lite/` and MUST NOT be implemented until the Markdown stranger-acceptance gate passes. V0.2 is limited to a narrow Spreadsheet Travel Table slice; advanced spreadsheets, DOCX, PDF, screenshots, and mind maps remain later evidence-driven work. Do not add accounts, email recovery, cross-device ownership/editing, permanent hosted retention, recommendations, expenses, packing, social features, booking, or automatic replanning unless the user explicitly asks.
+Hosted delivery is planned separately in `openspec/changes/hosted-trip-delivery-lite/` and MUST NOT be implemented until External Markdown Benchmark #001 passes its acceptance gate. V0.2 is limited to a narrow Spreadsheet Travel Table slice; advanced spreadsheets, DOCX, PDF, screenshots, and mind maps remain later evidence-driven work. Do not add accounts, email recovery, cross-device ownership/editing, permanent hosted retention, recommendations, expenses, packing, social features, booking, or automatic replanning unless the user explicitly asks.
 
 ## Roadmap and change gates
 
@@ -38,7 +38,7 @@ The decided roadmap is:
 V0    Understand + Trust
       Source -> UnifiedSourceDocument -> ParsedTripDraft
       -> deterministic validation -> evidence-backed Review
-      -> Confirmed CanonicalTrip -> stranger Markdown gate
+      -> Confirmed CanonicalTrip -> External Markdown Benchmark #001 gate
 
 V0.1  Deliver
       CanonicalTrip -> PublishedTripSnapshot
@@ -54,9 +54,30 @@ Only with evidence
       Account / cross-device ownership / multi-trip / billing
 ```
 
+Current research state:
+
+```text
+Formal input samples                  24
+External Markdown benchmarks           1
+Response reference pairs               1
+Cross-format semantic saturation       not reached
+Markdown V0 evidence boundary          sufficient to implement
+```
+
+Sample #23 is `External Markdown Benchmark #001` and is the current Markdown acceptance fixture.
+
+Sample #24 is `Busan.xlsx`. It is also paired with an independently created mobile Web result:
+
+```text
+Busan.xlsx
+→ https://bbmddt.github.io/busan-travel/
+```
+
+That pair is tracked separately as `Response Reference Pair #001`. Input semantics belong in Input Research; source-to-result rendering evidence belongs in Response Page Research. Do not count the Result Web as another input sample.
+
 `build-trip-runtime-v0` MUST end at a locally confirmed and renderable CanonicalTrip. Do not add `PublishedTripSnapshot`, `TripPublication`, hosted URL, recovery, expiry, account, or server implementation tasks to that change.
 
-Before any Hosted Delivery implementation begins, the unfamiliar Markdown acceptance fixture MUST demonstrate:
+Before any Hosted Delivery implementation begins, External Markdown Benchmark #001 (Sample #23, the first unfamiliar user-authored Markdown fixture) MUST demonstrate:
 
 - Zero missing critical events in the original pre-Review draft.
 - Zero invented critical events in the original pre-Review draft.
@@ -104,26 +125,77 @@ Prefer library and framework components over hand-built equivalents. Do not rein
 - OpenAI and Gemini use two concrete provider adapters behind one provider-neutral `parseTrip(request)` contract and the same ParsedTripDraft schema, deterministic validation, Review, and CanonicalTrip confirmation path. Do not add a plugin system or speculative provider registry.
 - Each provider has an isolated encrypted browser-local credential and a provider-specific clear action. Preserve the existing encrypted OpenAI key during migration; never copy, share, or fall back from one provider's key to the other.
 - OpenAI requests use bearer authentication and `store: false`. Gemini requests use the `x-goog-api-key` header; API keys MUST NOT appear in URLs. Provider/model selection and provider response metadata MUST NOT enter CanonicalTrip or CanonicalExport.
-- Each provider uses one pinned, acceptance-tested structured-output model. Changing a pinned model requires rerunning parser-quality and stranger-Markdown acceptance fixtures.
+- Each provider uses one pinned, acceptance-tested structured-output model. Changing a pinned model requires rerunning parser-quality and External Markdown Benchmark #001 acceptance fixtures.
 - Canonical JSON is the approved cross-computer portability path in V0. Browser-local API keys do not sync; each browser/device requires its own explicitly supplied key.
 - Clearing trip data returns to Home without silently clearing provider keys. Clearing a provider key or all local data requires a separate explicit action whose scope is stated before confirmation.
+
+## Documentation maintenance
+
+The project documentation has been consolidated into fixed current filenames.
+
+Do not create rolling files such as:
+
+```text
+02_INPUT_RESEARCH_v0.6.md
+02_INPUT_RESEARCH_v0.7.md
+```
+
+Update the current document in place and use Git history for version history.
+
+Current documentation roles:
+
+```text
+00_README.md                  documentation map / maintenance rules
+01_CANONICAL_CONTEXT.md       product-level current truth
+02_INPUT_RESEARCH.md          real-world source evidence
+03_PIPELINE_SPEC.md           source-to-canonical pipeline
+04_RESPONSE_PAGE_RESEARCH.md  source-to-result / Result UI evidence
+05_V0_IMPLEMENTATION_PLAN.md  implementation order and acceptance gates
+```
+
+Keep Input Research and Response Page Research separate. A source document can be an input sample while its existing rendered Web can form a response-reference pair.
 
 ## Source-of-truth files
 
 Use these files as product and itinerary references:
 
-- `temp/01_CANONICAL_CONTEXT.md`: current product decisions, scope, and roadmap
-- `temp/02_INPUT_RESEARCH_v0.4.md`: current real-world input evidence from 22 formal samples; the sample number is not a participant count, and the corresponding source files are under `temp/Odata/`
+- `temp/00_README.md`: current documentation map and maintenance rules
+- `temp/01_CANONICAL_CONTEXT.md`: current product decisions, scope, roadmap, and validated / unvalidated assumptions
+- `temp/02_INPUT_RESEARCH.md`: current real-world input evidence from 24 formal samples; the sample number is not a participant count, and the corresponding source files are under `temp/Odata/`
 - `temp/03_PIPELINE_SPEC.md`: source-to-canonical pipeline principles
-- `temp/md-files/osaka_uji_nara_2026-09-10_to_09-15.md`: canonical human-readable itinerary
+- `temp/04_RESPONSE_PAGE_RESEARCH.md`: current Source → Result / Response Page evidence; currently contains Response Reference Pair #001 (`Busan.xlsx` → Busan mobile Web)
+- `temp/05_V0_IMPLEMENTATION_PLAN.md`: current implementation order, parser/review work, and acceptance gates
+- `temp/md-files/osaka_uji_nara_2026-09-10_to_09-15.md`: canonical human-readable itinerary for Golden Input #001
 - `temp/md-files/trip_places_google_maps.md`: authoritative Google Maps URLs
-- `temp/md-files/trip_runtime_result_ui_spec_v0.1.md`: result-view principles
+- `temp/md-files/trip_runtime_result_ui_spec_v0.1.md`: historical result-view principles; later decisions in `01_CANONICAL_CONTEXT.md` and `04_RESPONSE_PAGE_RESEARCH.md` take precedence where they differ
 - `temp/md-files/trip_runtime_end_to_end_flow_v0.1.md`: historical broader product context; later decisions in `01_CANONICAL_CONTEXT.md` take precedence
-- `src/tripData.js`: structured runtime data consumed by the UI
-- `openspec/changes/build-trip-runtime-v0/`: active Markdown Understand + Trust implementation and stranger-acceptance gate
-- `openspec/changes/hosted-trip-delivery-lite/`: approved next-layer delivery proposal; planning is in scope, implementation is gated by stranger-Markdown acceptance
+- `src/tripData.js`: structured runtime data consumed by the Osaka viewer
+- `openspec/changes/build-trip-runtime-v0/`: active Markdown Understand + Trust implementation and External Markdown Benchmark #001 acceptance gate
+- `openspec/changes/hosted-trip-delivery-lite/`: approved next-layer delivery proposal; planning is in scope, implementation is gated by External Markdown Benchmark #001 acceptance
 
 When a map URL exists in `temp/md-files/trip_places_google_maps.md` or the canonical itinerary, store and use that exact URL. Do not reconstruct, normalize, or guess a different query in the UI.
+
+## Current parser evidence
+
+Markdown V0 must account for evidence from Sample #23:
+
+- Markdown AST is structural evidence, not semantic truth.
+- `A > B > C` may encode itinerary sequence rather than blockquote semantics.
+- One source can mix `11:55`, `5.30`, `12點`, and `七點`.
+- A partially structured entity such as a flight may be identifiable even when airline, flight number, airport pair, or row-level date is absent.
+- Address-first places are valid unresolved places.
+- Missing relative Markdown image assets must not fail the whole parse.
+- One paragraph or line may contain multiple semantic units.
+- Free Time and intentionally vague meals are first-class itinerary intent, not missing data.
+
+Spreadsheet V0.2 / later evidence from Sample #24 adds:
+
+- Open-ended time such as `18:30~` is valid and must normalize to a known start with unknown end.
+- A parent activity can contain an internal timetable; venue programs must not automatically become top-level day events.
+- Booking release rules such as “four weeks before, Tuesday 06:00” are not event times.
+- Pass / ticket / reservation metadata may be structured alongside an event and must not collapse into one boolean.
+
+Keep these distinctions in parser / validator behavior even if the first implementation stores some of them only as Preserve semantics.
 
 ## Runtime integrity
 
@@ -155,6 +227,10 @@ When a map URL exists in `temp/md-files/trip_places_google_maps.md` or the canon
 - Use an editorial, Japanese-minimal, utility-focused visual style.
 - Avoid dashboard density, travel SaaS gradients, excessive photography, and card-everything layouts.
 - External map and restaurant links open in a new tab with safe `rel` attributes.
+- Response Reference Pair #001 is an evidence-backed baseline for mobile webification: sticky day navigation, day themes, a narrow time column, secondary notes, reservation / Pass badges, and supporting-image appendices are useful patterns.
+- Do not merely reproduce that static baseline. Trip Runtime must preserve Alternative / Conditional / Flexible semantics rather than flattening them into display strings.
+- Hard runtime constraints such as “arrive by 16:00 for a 16:30 booking” should be eligible for NEXT / Leave-by treatment instead of remaining buried in notes.
+- Supporting images, timetables, venue maps, and instructions may belong on a secondary surface rather than inside every event card.
 
 ## Development workflow
 
@@ -199,3 +275,5 @@ A change is complete when:
 - Exact source-provided links and statuses are preserved.
 - The production build passes.
 - The changed interaction has been verified in the browser.
+- Parser changes that can affect Markdown interpretation have been checked against External Markdown Benchmark #001 and its annotated ambiguities.
+- Result rendering changes must not regress the semantic distinctions identified in Input Research merely to match a prettier static response-page baseline.

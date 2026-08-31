@@ -24,7 +24,7 @@ function projectLink(link) {
 
 function projectItem(item) {
   if (item.kind === "transit") {
-    return { id: item.id, kind: item.kind, label: item.label, ...(item.tip ? { tip: item.tip } : {}) };
+    return { id: item.id, kind: item.kind, label: item.label, ...(item.tip ? { tip: item.tip } : {}), ...(item.from ? { from: item.from } : {}), ...(item.to ? { to: item.to } : {}) };
   }
   return {
     id: item.id,
@@ -40,6 +40,7 @@ function projectItem(item) {
     ...(item.flexible !== undefined ? { flexible: item.flexible } : {}),
     ...(item.optional !== undefined ? { optional: item.optional } : {}),
     ...(item.tentative !== undefined ? { tentative: item.tentative } : {}),
+    ...(item.relation ? { relation: { ...item.relation } } : {}),
     links: item.links.map(projectLink),
     ...(item.flight ? { flight: { ...item.flight } } : {}),
   };
