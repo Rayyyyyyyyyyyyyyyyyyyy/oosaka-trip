@@ -1,15 +1,16 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
 
-@theme {
-  --color-trip-paper: #f3f1eb;
-  --color-trip-surface: #fbfaf6;
-  --color-trip-ink: #20221f;
-  --color-trip-muted: #74766f;
-  --color-trip-moss: #536358;
-  --color-trip-acid: #d9ef6f;
-  --color-trip-orange: #e36f4d;
-  --font-serif-jp: "Noto Serif TC", ui-serif, serif;
-  --font-sans-jp: "Noto Sans TC", ui-sans-serif, system-ui, sans-serif;
+@theme inline {
+  --color-trip-paper: var(--trip-color-paper);
+  --color-trip-surface: var(--trip-color-surface);
+  --color-trip-ink: var(--trip-color-ink);
+  --color-trip-muted: var(--trip-color-muted);
+  --color-trip-moss: var(--trip-color-moss);
+  --color-trip-acid: var(--trip-color-acid);
+  --color-trip-orange: var(--trip-color-orange);
+  --font-serif-jp: var(--trip-font-serif);
+  --font-sans-jp: var(--trip-font-sans);
 }
 
 @layer base {

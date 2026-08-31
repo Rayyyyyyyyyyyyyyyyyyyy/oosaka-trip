@@ -1,21 +1,22 @@
 import { createTheme } from "@mui/material/styles";
 
 export const appTheme = createTheme({
+  cssVariables: { nativeColor: true },
   palette: {
     mode: "light",
-    background: { default: "#f3f1eb", paper: "#fbfaf6" },
-    primary: { main: "#536358" },
-    secondary: { main: "#e36f4d" },
-    text: { primary: "#20221f", secondary: "#74766f" },
-    success: { main: "#60744e" },
-    warning: { main: "#b76b32" },
+    background: { default: "var(--trip-color-paper)", paper: "var(--trip-color-surface)" },
+    primary: { main: "var(--trip-color-moss)" },
+    secondary: { main: "var(--trip-color-orange)" },
+    text: { primary: "var(--trip-color-ink)", secondary: "var(--trip-color-muted)" },
+    success: { main: "var(--trip-color-success)" },
+    warning: { main: "var(--trip-color-warning)" },
   },
   shape: { borderRadius: 2 },
   typography: {
-    fontFamily: '"Noto Sans TC", system-ui, sans-serif',
-    h1: { fontFamily: '"Noto Serif TC", serif', fontWeight: 700 },
-    h2: { fontFamily: '"Noto Serif TC", serif', fontWeight: 700 },
-    h3: { fontFamily: '"Noto Serif TC", serif', fontWeight: 700 },
+    fontFamily: "var(--trip-font-sans)",
+    h1: { fontFamily: "var(--trip-font-serif)", fontWeight: 700 },
+    h2: { fontFamily: "var(--trip-font-serif)", fontWeight: 700 },
+    h3: { fontFamily: "var(--trip-font-serif)", fontWeight: 700 },
     overline: {
       fontFamily: "ui-monospace, monospace",
       letterSpacing: 1.6,

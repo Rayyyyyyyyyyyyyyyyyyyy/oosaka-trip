@@ -1,0 +1,14 @@
+:root {
+  --trip-color-paper: #f3f1eb;
+  --trip-color-surface: #fbfaf6;
+  --trip-color-soft: #e9e7e0;
+  --trip-color-ink: #20221f;
+  --trip-color-muted: #74766f;
+  --trip-color-moss: #536358;
+  --trip-color-acid: #d9ef6f;
+  --trip-color-orange: #e36f4d;
+  --trip-color-success: #60744e;
+  --trip-color-warning: #b76b32;
+  --trip-font-serif: "Noto Serif TC", ui-serif, serif;
+  --trip-font-sans: "Noto Sans TC", ui-sans-serif, system-ui, sans-serif;
+}
