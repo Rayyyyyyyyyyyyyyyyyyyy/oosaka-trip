@@ -24,6 +24,8 @@ import {
 import { Add, Delete, ExpandMore } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { addReviewItem, applyReviewOverride, removeReviewItem } from "../../domain/trip/review";
+import { ReferenceBlocksReview, sourceBlockContent } from "./ReferenceBlocksReview";
+import { ReviewFindingsSummary } from "./ReviewFindingsSummary";
 
 const EVENT_TYPES = ["flight", "hotel", "work", "activity", "restaurant", "free_time", "transport"];
 const TIMING_KINDS = ["exact", "range", "open_ended", "approximate", "part_of_day", "all_day", "unspecified"];
@@ -36,15 +38,27 @@ function Field({ label, value, onChange, type, error, ...props }) {
   return <TextField label={label} value={value ?? ""} onChange={(event) => onChange(event.target.value || null)} type={type} error={Boolean(error)} helperText={error?.message} fullWidth {...props} />;
 }
 
-function Evidence({ entries, sourceDocument }) {
-  if (!entries?.length) return <Typography variant="caption" color="warning.main">沒有來源 excerpt；請人工確認。</Typography>;
+function Evidence({ entries, sourceDocument, travelerOverride = false }) {
+  if (!entries?.length) return (
+    <Typography variant="caption" color={travelerOverride ? "info.main" : "warning.main"}>
+      {travelerOverride ? "旅客人工新增；未建立或捏造來源證據。" : "沒有可驗證的來源證據；請人工確認。"}
+    </Typography>
+  );
   return (
     <Box component="details">
       <Typography component="summary" variant="caption" sx={{ cursor: "pointer" }}>查看來源證據</Typography>
       <Stack spacing={1} mt={1}>
         {entries.map((entry, index) => {
           const block = sourceDocument.blocks.find((candidate) => candidate.id === entry.blockId);
-          return <Typography key={`${entry.blockId}-${index}`} variant="caption" color="text.secondary">Lines {block?.locator.startLine ?? "?"}–{block?.locator.endLine ?? "?"}: 「{entry.excerpt}」</Typography>;
+          return block ? (
+            <Typography key={`${entry.blockId}-${index}`} variant="caption" color="text.secondary">
+              Lines {block.locator.startLine}–{block.locator.endLine}: 「{sourceBlockContent(block)}」
+            </Typography>
+          ) : (
+            <Typography key={`${entry.blockId}-${index}`} variant="caption" color="warning.main">
+              找不到來源區塊 {entry.blockId}；provider excerpt 不視為已驗證證據。
+            </Typography>
+          );
         })}
       </Stack>
     </Box>
@@ -56,7 +70,7 @@ function timingFor(kind, current) {
   return { kind, start: null, end: null, value: kind === "part_of_day" ? "morning" : null, label, crossesMidnight: false };
 }
 
-function ItemEditor({ item, findings, sourceDocument, update, remove }) {
+function ItemEditor({ item, findings, sourceDocument, update, remove, travelerOverride }) {
   const errors = messagesFor(findings, item.id);
   const first = (codes) => errors.find((finding) => codes.includes(finding.code));
   return (
@@ -91,7 +105,7 @@ function ItemEditor({ item, findings, sourceDocument, update, remove }) {
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>{[["起飛", "departure"], ["抵達", "arrival"]].map(([label, field]) => <Field key={field} label={label} type="time" value={item.flight?.[field]} onChange={(value) => update(`flight.${field}`, value)} error={first(["incomplete_flight", `invalid_flight_${field}`])} InputLabelProps={{ shrink: true }} />)}</Stack>
         </Stack>}
         {errors.filter((finding) => finding.severity === "warning").map((finding) => <Alert key={finding.id} severity="warning">{finding.message}</Alert>)}
-        <Evidence entries={item.evidence} sourceDocument={sourceDocument} />
+        <Evidence entries={item.evidence} sourceDocument={sourceDocument} travelerOverride={travelerOverride} />
       </Stack>
     </Paper>
   );
@@ -103,7 +117,6 @@ export function TripReviewDialog({ initialSession, onCancel, onConfirm }) {
   const [session, setSession] = useState(initialSession);
   const summaryRef = useRef(null);
   const blockers = useMemo(() => session.findings.filter((finding) => finding.severity === "blocking"), [session]);
-  const warnings = session.findings.filter((finding) => finding.severity === "warning");
   const update = (entityId, field, value) => setSession((current) => applyReviewOverride(current, entityId, field, value));
 
   useEffect(() => { summaryRef.current?.focus(); }, []);
@@ -119,10 +132,7 @@ export function TripReviewDialog({ initialSession, onCancel, onConfirm }) {
       <DialogTitle id="trip-review-title">確認解析結果</DialogTitle>
       <DialogContent dividers>
         <Stack spacing={3}>
-          <Alert ref={summaryRef} tabIndex={-1} severity={blockers.length ? "error" : warnings.length ? "warning" : "success"} role="status" aria-live="polite">
-            {blockers.length ? `${blockers.length} 個問題必須先修正；另有 ${warnings.length} 個提醒。` : `可產生旅程；仍有 ${warnings.length} 個不阻擋提醒。`}
-          </Alert>
-          {blockers.map((finding) => <Alert key={finding.id} severity="error">{finding.message}</Alert>)}
+          <ReviewFindingsSummary session={session} summaryRef={summaryRef} />
           <Typography variant="h2" fontSize={28}>旅程摘要</Typography>
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
             <Field label="旅程名稱" value={session.draft.trip.title} onChange={(value) => update(session.draft.trip.id, "title", value)} error={error(["missing_trip_title"])} />
@@ -148,13 +158,13 @@ export function TripReviewDialog({ initialSession, onCancel, onConfirm }) {
                   <Field label="當日標題" value={day.title} onChange={(value) => update(day.id, "title", value)} error={dayErrors.find((finding) => finding.code === "missing_day_title")} />
                 </Stack>
                 <Evidence entries={day.evidence} sourceDocument={session.sourceDocument} />
-                {day.items.map((item) => <ItemEditor key={item.id} item={item} findings={session.findings} sourceDocument={session.sourceDocument} update={(field, value) => update(item.id, field, value)} remove={() => setSession((current) => removeReviewItem(current, item.id))} />)}
+                {day.items.map((item) => <ItemEditor key={item.id} item={item} findings={session.findings} sourceDocument={session.sourceDocument} travelerOverride={session.overrides.some((override) => override.entityId === item.id && override.field === "add")} update={(field, value) => update(item.id, field, value)} remove={() => setSession((current) => removeReviewItem(current, item.id))} />)}
                 <Button startIcon={<Add />} variant="outlined" onClick={() => setSession((current) => addReviewItem(current, day.id))}>補上漏掉的行程</Button>
               </Stack></AccordionDetails>
             </Accordion>;
           })}
           {session.draft.reservations.length > 0 && <><Divider /><Typography variant="h2" fontSize={28}>預約與票券</Typography>{session.draft.reservations.map((reservation) => <Paper key={reservation.id} variant="outlined" sx={{ p: 2 }}><Stack spacing={2}><Field label="名稱" value={reservation.title} onChange={(value) => update(reservation.id, "title", value)} /><Field label="日期標籤" value={reservation.dateLabel} onChange={(value) => update(reservation.id, "dateLabel", value)} /><Field label="待辦文字" value={reservation.todoLabel} onChange={(value) => update(reservation.id, "todoLabel", value)} /><Field label="完成狀態" value={reservation.completeStatus} onChange={(value) => update(reservation.id, "completeStatus", value)} /><Evidence entries={reservation.evidence} sourceDocument={session.sourceDocument} /></Stack></Paper>)}</>}
-          {session.draft.referenceBlocks.length > 0 && <Alert severity="info">有 {session.draft.referenceBlocks.length} 個參考、背景、操作指引或其他支援資訊區塊未被當成行程事件。</Alert>}
+          <ReferenceBlocksReview references={session.draft.referenceBlocks} sourceDocument={session.sourceDocument} />
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>

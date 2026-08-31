@@ -127,6 +127,20 @@ function timingStart(item) {
   return null;
 }
 
+function appendEvidenceFindings(findings, evidence, knownBlocks, entityId, label) {
+  evidence.forEach((entry, index) => {
+    if (!knownBlocks.has(entry.blockId)) {
+      findings.push(finding(
+        "broken_evidence_reference",
+        "warning",
+        entityId,
+        `${label} 引用了找不到的來源區塊 ${entry.blockId}；此 provider excerpt 不視為已驗證證據。`,
+        index,
+      ));
+    }
+  });
+}
+
 export function validateReviewDraft(draft, sourceDocument) {
   const findings = [];
   const trip = draft.trip;
@@ -149,6 +163,7 @@ export function validateReviewDraft(draft, sourceDocument) {
     }
     if (!day.title) findings.push(finding("missing_day_title", "blocking", day.id, `第 ${dayIndex + 1} 天缺少標題。`));
     if (!day.evidence.some((entry) => knownBlocks.has(entry.blockId))) findings.push(finding("missing_day_evidence", "warning", day.id, "此行程日沒有可用的來源證據；請人工確認。"));
+    appendEvidenceFindings(findings, day.evidence, knownBlocks, day.id, "行程日");
 
     let previousTime = null;
     const times = new Map();
@@ -175,6 +190,8 @@ export function validateReviewDraft(draft, sourceDocument) {
         names.push(normalizedName);
       }
       if (!item.evidence.some((entry) => knownBlocks.has(entry.blockId))) findings.push(finding("missing_item_evidence", "warning", item.id, "此項目沒有可用來源證據；僅在你已人工補上時保留。", itemIndex));
+      appendEvidenceFindings(findings, item.evidence, knownBlocks, item.id, "行程項目");
+      item.links.forEach((link) => appendEvidenceFindings(findings, link.evidence, knownBlocks, item.id, "外部連結"));
       if (item.type === "flight") {
         const required = ["code", "origin", "destination", "departure", "arrival"];
         if (!item.flight || required.some((field) => !item.flight[field])) findings.push(finding("incomplete_flight", "warning", item.id, "航班資料不完整；保留來源支持的欄位，並在 Review 中確認缺漏。", itemIndex));
@@ -190,9 +207,105 @@ export function validateReviewDraft(draft, sourceDocument) {
     if (!reservation.title || !reservation.dateLabel || !reservation.type || !reservation.todoLabel || !reservation.completeStatus) {
       findings.push(finding("incomplete_reservation", "blocking", reservation.id, "預約需要名稱、日期標籤、類型、確認項目與完成狀態。", index));
     }
+    appendEvidenceFindings(findings, reservation.evidence, knownBlocks, reservation.id, "預約");
   });
-  draft.parserNotes.forEach((note, index) => findings.push(finding(`parser_${note.kind}`, "warning", trip.id, note.message, index)));
+  draft.parserNotes.forEach((note, index) => {
+    findings.push(finding(`parser_${note.kind}`, "warning", trip.id, note.message, index));
+    note.blockIds.forEach((blockId, blockIndex) => {
+      if (!knownBlocks.has(blockId)) {
+        findings.push(finding(
+          "broken_parser_note_evidence",
+          "warning",
+          trip.id,
+          `Parser ${note.kind} 提醒引用了找不到的來源區塊 ${blockId}。`,
+          index * 1000 + blockIndex,
+        ));
+      }
+    });
+  });
+  draft.referenceBlocks.forEach((reference, index) => {
+    if (!knownBlocks.has(reference.blockId)) {
+      findings.push(finding(
+        "broken_reference_block",
+        "warning",
+        trip.id,
+        `保留的 ${reference.classification} 資訊引用了找不到的來源區塊 ${reference.blockId}。`,
+        index,
+      ));
+    }
+  });
   return findings;
+}
+
+function entityIndex(session) {
+  const entries = [[session.draft.trip.id, { label: session.draft.trip.title || "旅程摘要", kind: "trip" }]];
+  session.draft.days.forEach((day, dayIndex) => {
+    entries.push([day.id, { label: day.title || `第 ${dayIndex + 1} 天`, kind: "day" }]);
+    day.items.forEach((item, itemIndex) => entries.push([item.id, {
+      label: item.title || `${day.title || `第 ${dayIndex + 1} 天`}的第 ${itemIndex + 1} 個項目`,
+      kind: item.kind,
+    }]));
+  });
+  session.draft.reservations.forEach((reservation, index) => entries.push([reservation.id, {
+    label: reservation.title || `第 ${index + 1} 筆預約`,
+    kind: "reservation",
+  }]));
+  return new Map(entries);
+}
+
+function evidenceForEntity(session, entityId) {
+  if (!entityId) return [];
+  const day = session.draft.days.find((candidate) => candidate.id === entityId);
+  if (day) return day.evidence;
+  const item = session.draft.days.flatMap((candidate) => candidate.items).find((candidate) => candidate.id === entityId);
+  if (item) return item.evidence;
+  const reservation = session.draft.reservations.find((candidate) => candidate.id === entityId);
+  return reservation?.evidence ?? [];
+}
+
+function groupBy(items, keyOf) {
+  return items.reduce((groups, item) => {
+    const key = keyOf(item) || "none";
+    return { ...groups, [key]: [...(groups[key] ?? []), item] };
+  }, {});
+}
+
+export function selectReviewFindings(session) {
+  const entities = entityIndex(session);
+  const knownBlocks = new Map(session.sourceDocument.blocks.map((block) => [block.id, block]));
+  const travelerAddedIds = new Set(session.overrides.filter((override) => override.field === "add").map((override) => override.entityId));
+  const all = session.findings.map((item) => {
+    const parserNote = item.code.startsWith("parser_")
+      ? session.draft.parserNotes.find((note) => item.code === `parser_${note.kind}` && item.message === note.message)
+      : null;
+    const evidence = parserNote
+      ? parserNote.blockIds.map((blockId) => knownBlocks.get(blockId)).filter(Boolean)
+      : evidenceForEntity(session, item.entityId).map((entry) => knownBlocks.get(entry.blockId)).filter(Boolean);
+    const isTravelerOverride = travelerAddedIds.has(item.entityId);
+    const evidenceValidity = item.code.startsWith("broken_")
+      ? "broken_provider_evidence"
+      : isTravelerOverride
+        ? "traveler_override"
+        : evidence.length
+          ? "valid_source_evidence"
+          : "not_applicable";
+    return {
+      ...item,
+      entityLabel: entities.get(item.entityId)?.label ?? "旅程 Review",
+      entityKind: entities.get(item.entityId)?.kind ?? "review",
+      parserNoteKind: parserNote?.kind ?? null,
+      evidenceValidity,
+      sourceBlocks: evidence,
+    };
+  });
+  return {
+    all,
+    blockers: all.filter((item) => item.severity === "blocking"),
+    warnings: all.filter((item) => item.severity === "warning"),
+    byEntity: groupBy(all, (item) => item.entityId),
+    byParserNoteKind: groupBy(all.filter((item) => item.parserNoteKind), (item) => item.parserNoteKind),
+    byEvidenceValidity: groupBy(all, (item) => item.evidenceValidity),
+  };
 }
 
 export function createReviewSession(sourceDocument, parsedDraft, now = new Date()) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { kyotoSourceDocument, parsedKyotoDraft } from "../../fixtures/parsedKyotoDraft";
-import { addReviewItem, applyReviewOverride, confirmReviewSession, createReviewSession, stableId, validateReviewDraft } from "./review";
+import { addReviewItem, applyReviewOverride, confirmReviewSession, createReviewSession, selectReviewFindings, stableId, validateReviewDraft } from "./review";
 
 describe("review normalization and confirmation", () => {
   it("assigns deterministic application IDs and confirms a renderable canonical trip", () => {
@@ -91,5 +91,50 @@ describe("review normalization and confirmation", () => {
 
     expect(added.evidence).toEqual([]);
     expect(updated.findings.some((finding) => finding.entityId === added.id && finding.code === "missing_item_evidence")).toBe(true);
+  });
+
+  it("keeps every parser-note kind individually inspectable", () => {
+    const draft = structuredClone(parsedKyotoDraft);
+    draft.parserNotes = ["ambiguity", "conflict", "low_confidence", "non_itinerary"].map((kind) => ({
+      kind,
+      message: `Parser ${kind}`,
+      blockIds: ["block-2"],
+    }));
+    const session = createReviewSession(kyotoSourceDocument, draft);
+    const selected = selectReviewFindings(session);
+
+    expect(selected.warnings.filter((item) => item.parserNoteKind).map((item) => item.parserNoteKind)).toEqual([
+      "ambiguity",
+      "conflict",
+      "low_confidence",
+      "non_itinerary",
+    ]);
+  });
+
+  it("distinguishes valid evidence, broken provider references, and traveler overrides", () => {
+    const draft = structuredClone(parsedKyotoDraft);
+    draft.days[0].items[0].evidence.push({ blockId: "missing-block", excerpt: "provider invented excerpt" });
+    draft.parserNotes = [{ kind: "ambiguity", message: "Unknown evidence", blockIds: ["missing-note-block"] }];
+    draft.referenceBlocks = [{ blockId: "missing-reference-block", classification: "research", reason: "Preserved" }];
+    let session = createReviewSession(kyotoSourceDocument, draft);
+    session = addReviewItem(session, session.draft.days[0].id, new Date("2026-01-01T00:00:00Z"));
+    const selected = selectReviewFindings(session);
+
+    expect(selected.all.some((item) => item.evidenceValidity === "broken_provider_evidence" && item.entityId === session.draft.days[0].items[0].id)).toBe(true);
+    expect(selected.all.some((item) => item.code === "broken_parser_note_evidence")).toBe(true);
+    expect(selected.all.some((item) => item.code === "broken_reference_block")).toBe(true);
+    expect(selected.all.some((item) => item.evidenceValidity === "traveler_override")).toBe(true);
+  });
+
+  it("keeps transient Review and provider metadata out of confirmed canonical output", () => {
+    const draft = structuredClone(parsedKyotoDraft);
+    draft.parserNotes = [{ kind: "ambiguity", message: "Transient provider note", blockIds: ["block-2"] }];
+    draft.referenceBlocks = [{ blockId: "block-2", classification: "background", reason: "Transient classification" }];
+    const session = createReviewSession(kyotoSourceDocument, draft);
+    session.providerMetadata = { model: "must-not-persist" };
+    const serialized = JSON.stringify(confirmReviewSession(session));
+    expect(serialized).not.toContain("Transient provider note");
+    expect(serialized).not.toContain("Transient classification");
+    expect(serialized).not.toContain("must-not-persist");
   });
 });

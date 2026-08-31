@@ -45,6 +45,26 @@ describe("TripReviewDialog", () => {
     const draft = structuredClone(parsedKyotoDraft);
     draft.referenceBlocks = [{ blockId: "block-2", classification: "runtime_instruction", reason: "Use this at the station." }];
     render(<TripReviewDialog initialSession={createReviewSession(kyotoSourceDocument, draft)} onCancel={vi.fn()} onConfirm={vi.fn()} />);
-    expect(screen.getByText(/參考、背景、操作指引或其他支援資訊/)).toBeTruthy();
+    expect(screen.getByText("runtime_instruction")).toBeTruthy();
+    expect(screen.getByText("Use this at the station.")).toBeTruthy();
+    expect(screen.getAllByText(/Lines 2–2/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/10:00 清水寺（彈性）/).length).toBeGreaterThan(0);
+  });
+
+  it("renders every parser note and broken evidence reference instead of only counts", () => {
+    const draft = structuredClone(parsedKyotoDraft);
+    draft.parserNotes = [
+      { kind: "ambiguity", message: "Ambiguous time", blockIds: ["block-2"] },
+      { kind: "conflict", message: "Conflicting place", blockIds: ["missing-block"] },
+      { kind: "low_confidence", message: "Low-confidence meal", blockIds: [] },
+    ];
+    draft.days[0].items[0].evidence = [{ blockId: "missing-evidence", excerpt: "Do not render this as verified" }];
+    render(<TripReviewDialog initialSession={createReviewSession(kyotoSourceDocument, draft)} onCancel={vi.fn()} onConfirm={vi.fn()} />);
+
+    expect(screen.getByText("Ambiguous time")).toBeTruthy();
+    expect(screen.getByText("Conflicting place")).toBeTruthy();
+    expect(screen.getByText("Low-confidence meal")).toBeTruthy();
+    expect(screen.getAllByText(/找不到來源區塊/).length).toBeGreaterThan(0);
+    expect(screen.queryByText("Do not render this as verified")).toBeNull();
   });
 });
