@@ -48,6 +48,7 @@ export function selectFlights(trip) {
     day.items
       .filter((item) => item.kind === "event" && item.flight)
       .map((event) => ({
+        id: event.id,
         code: event.flight.code ?? "Flight",
         date: monthDay(day.date),
         route: [
@@ -136,6 +137,7 @@ export function selectDays(trip) {
 
 export function selectReservations(trip) {
   return trip.reservations.map((reservation) => ({
+    id: reservation.id,
     date: reservation.dateLabel,
     type: reservation.type,
     title: reservation.title,

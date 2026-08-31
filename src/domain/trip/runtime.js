@@ -31,6 +31,14 @@ export function getTripRuntime(trip, now = new Date()) {
   return { date, minutes, phase };
 }
 
+export function getSafeTripRuntime(trip, now = new Date()) {
+  try {
+    return { available: true, ...getTripRuntime(trip, now) };
+  } catch (error) {
+    return { available: false, phase: "unavailable", error };
+  }
+}
+
 export function minutesUntilTrip(trip, runtime) {
   const start = new Date(`${trip.startDate}T00:00:00+09:00`);
   const current = new Date(`${runtime.date}T00:00:00+09:00`);

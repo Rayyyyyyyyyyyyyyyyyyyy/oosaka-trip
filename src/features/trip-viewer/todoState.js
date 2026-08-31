@@ -1,8 +1,6 @@
-export const LEGACY_OSAKA_TODO_KEY = "osaka-trip-todos";
+import { LEGACY_OSAKA_TODO_KEY, todoStorageKey } from "../../storage/tripStorageKeys";
 
-export function todoStorageKey(tripId) {
-  return `trip-runtime:trip:${tripId}:todos`;
-}
+export { LEGACY_OSAKA_TODO_KEY, todoStorageKey } from "../../storage/tripStorageKeys";
 
 export function mergeTodoState(defaultTodos, savedTodos) {
   const savedState = new Map(

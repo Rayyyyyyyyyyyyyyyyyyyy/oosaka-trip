@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { osakaTrip } from "../../fixtures/osakaTrip";
-import { getTripRuntime, selectNextConfirmedEvent, selectRuntimeCandidates } from "./runtime";
+import { getSafeTripRuntime, getTripRuntime, selectNextConfirmedEvent, selectRuntimeCandidates } from "./runtime";
 
 describe("trip runtime", () => {
   it("uses the confirmed trip timezone", () => {
@@ -32,5 +32,12 @@ describe("trip runtime", () => {
   it("derives the pre-trip next event from canonical data", () => {
     const result = selectNextConfirmedEvent(osakaTrip, getTripRuntime(osakaTrip, new Date("2026-08-31T00:00:00Z")));
     expect(result).toMatchObject({ date: "2026-09-10", event: { id: "event-jx822" } });
+  });
+
+  it("returns a scoped unavailable result when current-time derivation fails", () => {
+    expect(getSafeTripRuntime({ ...osakaTrip, timezone: "not/a-timezone" })).toMatchObject({
+      available: false,
+      phase: "unavailable",
+    });
   });
 });

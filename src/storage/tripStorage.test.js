@@ -7,6 +7,7 @@ import {
   clearLocalTripData,
   importCanonicalJson,
   loadCanonicalTrip,
+  loadCanonicalTripState,
   saveCanonicalTrip,
 } from "./tripStorage";
 
@@ -62,5 +63,44 @@ describe("tripStorage", () => {
 
   it("treats migration or stored-data read failure as no local trip", () => {
     expect(loadCanonicalTrip({ getItem() { throw new Error("storage blocked"); } })).toBeNull();
+  });
+
+  it("reports invalid persisted canonical data without deleting it", () => {
+    const invalid = JSON.stringify({ ...osakaTrip, timezone: "not/a-timezone" });
+    localStorage.setItem(ACTIVE_TRIP_STORAGE_KEY, invalid);
+
+    expect(loadCanonicalTripState()).toMatchObject({ trip: null, status: "invalid" });
+    expect(localStorage.getItem(ACTIVE_TRIP_STORAGE_KEY)).toBe(invalid);
+  });
+
+  it("preserves the current trip when semantic import validation fails", () => {
+    saveCanonicalTrip(osakaTrip);
+    const candidate = structuredClone(osakaTrip);
+    candidate.id = "unsafe-trip";
+    candidate.timezone = "not/a-timezone";
+
+    expect(() => importCanonicalJson(JSON.stringify(createCanonicalExport({ ...candidate, timezone: "Asia/Tokyo" })).replace("Asia/Tokyo", "not/a-timezone"))).toThrow();
+    expect(loadCanonicalTrip()?.id).toBe(osakaTrip.id);
+  });
+
+  it("preserves the current trip when validated data cannot be serialized", () => {
+    saveCanonicalTrip(osakaTrip);
+    const candidate = structuredClone(osakaTrip);
+    candidate.id = "serialization-failure";
+    candidate.overrides = [{ id: "override-bigint", entityId: "event-jx822", field: "value", value: 1n, changedAt: "2026-08-31T00:00:00.000Z" }];
+
+    expect(() => saveCanonicalTrip(candidate)).toThrow();
+    expect(loadCanonicalTrip()?.id).toBe(osakaTrip.id);
+  });
+
+  it("preserves the previous serialized value when storage rejects a replacement", () => {
+    const previous = JSON.stringify(osakaTrip);
+    const storage = {
+      getItem: () => previous,
+      setItem: () => { throw new DOMException("Storage blocked", "SecurityError"); },
+    };
+
+    expect(() => saveCanonicalTrip({ ...osakaTrip, id: "replacement" }, storage)).toThrow("Storage blocked");
+    expect(storage.getItem(ACTIVE_TRIP_STORAGE_KEY)).toBe(previous);
   });
 });

@@ -42,4 +42,40 @@ describe("trip selectors", () => {
     expect(flight.route).toBe("TPE");
     expect(flight.route).not.toContain("undefined");
   });
+
+  it("preserves distinct canonical IDs for partial flights without codes", () => {
+    const candidate = structuredClone(osakaTrip);
+    candidate.days[0].items[0].flight = { origin: "TPE" };
+    candidate.days[5].items[2].flight = { destination: "TPE" };
+    const flights = selectViewerModel(candidate).trip.flights;
+    expect(flights.map((flight) => flight.id)).toEqual(["event-jx822", "event-jx821"]);
+    expect(flights.map((flight) => flight.code)).toEqual(["Flight", "Flight"]);
+  });
+
+  it("preserves reservation identity when display titles match", () => {
+    const candidate = structuredClone(osakaTrip);
+    candidate.reservations[1].title = candidate.reservations[0].title;
+    expect(selectViewerModel(candidate).reservations.slice(0, 2).map((item) => item.id)).toEqual([
+      "reservation-museum",
+      "reservation-seijiro",
+    ]);
+  });
+
+  it("keeps timeline identity stable when source order changes", () => {
+    const candidate = structuredClone(osakaTrip);
+    const before = selectViewerModel(candidate).days[0].events.map((event) => event.id);
+    candidate.days[0].items.reverse();
+    const after = selectViewerModel(candidate).days[0].events.map((event) => event.id);
+    expect(after).toEqual([...before].reverse());
+  });
+
+  it("preserves distinct optional-place IDs when labels match", () => {
+    const candidate = structuredClone(osakaTrip);
+    candidate.days[2].items[5].title = candidate.days[2].items[4].title;
+    const optional = selectViewerModel(candidate).days[2].optional;
+    expect(optional.slice(0, 2).map((place) => place.id)).toEqual([
+      "event-optional-uji-river",
+      "event-optional-uji-island",
+    ]);
+  });
 });

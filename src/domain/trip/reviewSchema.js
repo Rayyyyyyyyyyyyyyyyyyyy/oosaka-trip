@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { findingSchema } from "./schema";
+import { findingSchema, safeExternalUrlSchema } from "./schema";
 
 const nullableText = z.string().nullable();
-const sourceLinkSchema = z.object({ text: z.string(), url: z.string().url() }).strict();
+const sourceLinkSchema = z.object({ text: z.string(), url: safeExternalUrlSchema }).strict();
 const locatorSchema = z.object({
   startLine: z.number().int().positive(),
   endLine: z.number().int().positive(),
@@ -100,7 +100,7 @@ const draftRelationSchema = z.object({
 const draftLinkSchema = z.object({
   id: nullableText,
   type: z.enum(["maps", "restaurant", "website"]),
-  url: z.string().url(),
+  url: safeExternalUrlSchema,
   sourceProvided: z.literal(true),
   evidence: z.array(draftEvidenceSchema).min(1),
 }).strict();

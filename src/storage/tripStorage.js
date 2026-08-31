@@ -1,23 +1,33 @@
 import { createCanonicalExport, parseCanonicalExport } from "../domain/trip/export";
 import { parseCanonicalTrip } from "../domain/trip/schema";
-import { LEGACY_OSAKA_TODO_KEY } from "../features/trip-viewer/todoState";
+import { ACTIVE_TRIP_STORAGE_KEY, LEGACY_OSAKA_TODO_KEY, TRIP_STORAGE_PREFIX } from "./tripStorageKeys";
 
-export const ACTIVE_TRIP_STORAGE_KEY = "trip-runtime:active-trip";
-export const TRIP_STORAGE_PREFIX = "trip-runtime:trip:";
+export { ACTIVE_TRIP_STORAGE_KEY, TRIP_STORAGE_PREFIX } from "./tripStorageKeys";
 
 export function saveCanonicalTrip(trip, storage = globalThis.localStorage) {
   const validated = parseCanonicalTrip(trip);
-  storage?.setItem(ACTIVE_TRIP_STORAGE_KEY, JSON.stringify(validated));
+  const serialized = JSON.stringify(validated);
+  storage?.setItem(ACTIVE_TRIP_STORAGE_KEY, serialized);
   return validated;
 }
 
-export function loadCanonicalTrip(storage = globalThis.localStorage) {
+export function loadCanonicalTripState(storage = globalThis.localStorage) {
+  let serialized;
   try {
-    const serialized = storage?.getItem(ACTIVE_TRIP_STORAGE_KEY);
-    return serialized ? parseCanonicalTrip(JSON.parse(serialized)) : null;
-  } catch {
-    return null;
+    serialized = storage?.getItem(ACTIVE_TRIP_STORAGE_KEY);
+  } catch (error) {
+    return { trip: null, status: "unavailable", error };
   }
+  if (!serialized) return { trip: null, status: "empty", error: null };
+  try {
+    return { trip: parseCanonicalTrip(JSON.parse(serialized)), status: "ready", error: null };
+  } catch (error) {
+    return { trip: null, status: "invalid", error };
+  }
+}
+
+export function loadCanonicalTrip(storage = globalThis.localStorage) {
+  return loadCanonicalTripState(storage).trip;
 }
 
 export function exportCanonicalJson(trip, space = 2) {
@@ -26,9 +36,7 @@ export function exportCanonicalJson(trip, space = 2) {
 
 export function importCanonicalJson(serialized, storage = globalThis.localStorage) {
   const candidate = parseCanonicalExport(JSON.parse(serialized));
-  const trip = parseCanonicalTrip(candidate.trip);
-  saveCanonicalTrip(trip, storage);
-  return trip;
+  return saveCanonicalTrip(candidate.trip, storage);
 }
 
 export function clearLocalTripData(storage = globalThis.localStorage) {

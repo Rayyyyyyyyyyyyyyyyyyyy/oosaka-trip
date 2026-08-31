@@ -6,6 +6,35 @@ const idSchema = z.string().min(1).regex(/^[a-z0-9][a-z0-9-]*$/);
 const isoDateSchema = z.string().date();
 const localTimeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 
+export function isUsableIanaTimezone(value) {
+  if (typeof value !== "string" || !value.trim()) return false;
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: value }).format();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function isSafeExternalUrl(value) {
+  if (typeof value !== "string") return false;
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+export const ianaTimezoneSchema = z.string().min(1).refine(
+  isUsableIanaTimezone,
+  "Timezone must be a usable IANA timezone.",
+);
+
+export const safeExternalUrlSchema = z.string().url().refine(
+  isSafeExternalUrl,
+  "External links must use the supported https protocol.",
+);
+
 export const timingSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("exact"), start: localTimeSchema, end: localTimeSchema.optional(), label: z.string().optional(), crossesMidnight: z.boolean().optional() }).strict(),
   z.object({ kind: z.literal("range"), start: localTimeSchema, end: localTimeSchema, label: z.string().min(1), crossesMidnight: z.boolean().optional() }).strict(),
@@ -25,7 +54,7 @@ export const eventRelationSchema = z.object({
 export const linkSchema = z.object({
   id: idSchema,
   type: z.enum(["maps", "restaurant", "website"]),
-  url: z.string().url(),
+  url: safeExternalUrlSchema,
   sourceProvided: z.boolean(),
 }).strict();
 
@@ -122,7 +151,7 @@ export const canonicalTripSchema = z.object({
   title: z.string().min(1),
   destination: z.string().min(1),
   countryCode: z.string().length(2),
-  timezone: z.string().min(1),
+  timezone: ianaTimezoneSchema,
   startDate: isoDateSchema,
   endDate: isoDateSchema,
   days: z.array(daySchema).min(1),
@@ -139,6 +168,69 @@ export const canonicalTripSchema = z.object({
       context.addIssue({ code: "custom", path: ["days", index, "date"], message: "Day date must fall within the trip range." });
     }
   }
+
+  const unique = (entries, path, label) => {
+    const seen = new Map();
+    entries.forEach(({ id, path: entryPath }) => {
+      if (seen.has(id)) {
+        context.addIssue({
+          code: "custom",
+          path: entryPath,
+          message: `${label} ID '${id}' must be unique in ${path}.`,
+        });
+      } else {
+        seen.set(id, entryPath);
+      }
+    });
+  };
+
+  unique(trip.days.map((day, dayIndex) => ({ id: day.id, path: ["days", dayIndex, "id"] })), "days", "Day");
+  unique(trip.days.flatMap((day, dayIndex) => day.items.map((item, itemIndex) => ({ id: item.id, path: ["days", dayIndex, "items", itemIndex, "id"] }))), "day items", "Item");
+  unique(trip.days.flatMap((day, dayIndex) => day.items.flatMap((item, itemIndex) => item.kind === "event" ? item.links.map((link, linkIndex) => ({ id: link.id, path: ["days", dayIndex, "items", itemIndex, "links", linkIndex, "id"] })) : [])), "links", "Link");
+  unique(trip.reservations.map((reservation, index) => ({ id: reservation.id, path: ["reservations", index, "id"] })), "reservations", "Reservation");
+  unique(trip.todos.map((todo, index) => ({ id: todo.id, path: ["todos", index, "id"] })), "todos", "Todo");
+  unique(trip.overrides.map((override, index) => ({ id: override.id, path: ["overrides", index, "id"] })), "overrides", "Override");
+
+  const seenDates = new Set();
+  let previousDate = null;
+  trip.days.forEach((day, index) => {
+    if (seenDates.has(day.date)) {
+      context.addIssue({ code: "custom", path: ["days", index, "date"], message: `Day date '${day.date}' must be unique.` });
+    }
+    if (previousDate && day.date < previousDate) {
+      context.addIssue({ code: "custom", path: ["days", index, "date"], message: "Days must be in chronological order." });
+    }
+    seenDates.add(day.date);
+    previousDate = day.date;
+  });
+
+  const todoIds = new Set(trip.todos.map((todo) => todo.id));
+  trip.reservations.forEach((reservation, index) => {
+    if (!todoIds.has(reservation.todoId)) {
+      context.addIssue({
+        code: "custom",
+        path: ["reservations", index, "todoId"],
+        message: `Reservation todoId '${reservation.todoId}' must reference an existing todo.`,
+      });
+    }
+  });
+
+  const relationKinds = new Map();
+  trip.days.forEach((day, dayIndex) => {
+    day.items.forEach((item, itemIndex) => {
+      if (item.kind !== "event" || !item.relation) return;
+      const previousKind = relationKinds.get(item.relation.groupId);
+      if (previousKind && previousKind !== item.relation.kind) {
+        context.addIssue({
+          code: "custom",
+          path: ["days", dayIndex, "items", itemIndex, "relation", "groupId"],
+          message: `Relation group '${item.relation.groupId}' must use one consistent relation kind.`,
+        });
+      } else {
+        relationKinds.set(item.relation.groupId, item.relation.kind);
+      }
+    });
+  });
 });
 
 export function parseCanonicalTrip(value) {
