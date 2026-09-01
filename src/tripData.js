@@ -1,5 +1,5 @@
 export const trip = {
-  title: "大阪・宇治・奈良",
+  title: "大阪・宇治・太秦",
   period: "SEP 10 — SEP 15",
   hotel: "Aloft Osaka Dojima",
   flights: [
@@ -21,14 +21,8 @@ const placeMaps = {
     "https://www.google.com/maps/search/?api=1&query=%E5%B9%B3%E7%AD%89%E9%99%A2%20%E5%AE%87%E6%B2%BB",
   consola:
     "https://www.google.com/maps/search/?api=1&query=%E5%96%AB%E8%8C%B6%20%E3%82%B3%E3%83%B3%E3%82%BD%E3%83%A9%20%E5%AE%87%E6%B2%BB",
-  ikoma:
-    "https://www.google.com/maps/search/?api=1&query=%E7%94%9F%E9%A7%92%E5%B1%B1%E4%B8%8A%E9%81%8A%E6%A8%82%E5%9C%92",
-  kasuga:
-    "https://www.google.com/maps/search/?api=1&query=%E6%98%A5%E6%97%A5%E5%A4%A7%E7%A4%BE%20%E5%A5%88%E8%89%AF",
-  naramachi:
-    "https://www.google.com/maps/search/?api=1&query=%E3%81%AA%E3%82%89%E3%81%BE%E3%81%A1%20%E5%A5%88%E8%89%AF",
-  momoyozuki:
-    "https://www.google.com/maps/search/?api=1&query=%E3%81%9D%E3%81%B0%E5%88%87%E3%82%8A%20%E7%99%BE%E5%A4%9C%E6%9C%88%20%E5%A5%88%E8%89%AF",
+  toei:
+    "https://www.google.com/maps/search/?api=1&query=%E6%9D%B1%E6%98%A0%E5%A4%AA%E7%A7%A6%E6%98%A0%E7%94%BB%E6%9D%91%20%E4%BA%AC%E9%83%BD",
 };
 
 export const days = [
@@ -155,37 +149,49 @@ export const days = [
     date: "2026-09-13",
     n: "13",
     dow: "SUN",
-    label: "奈良",
-    title: "生駒・奈良",
-    subtitle: "踩腳踏車，然後被鹿搶劫",
+    label: "太秦",
+    title: "東映太秦映画村",
+    subtitle: "怪々YOKAI祭・百鬼夜行",
     events: [
       {
-        time: "早上",
-        type: "activity",
-        title: "生駒山上遊樂園",
-        meta: "主要目標：サイクルモノレール",
-        map: placeMaps.ikoma,
+        time: "睡飽",
+        type: "transport",
+        title: "前往太秦",
+        meta: "Osaka → Uzumasa · 不用太早出門",
       },
-      { transit: "生駒 → 近鐵奈良" },
       {
         time: "午後",
-        type: "activity",
-        title: "奈良公園・東大寺",
-        meta: "鹿仙貝 → 東大寺 → 二月堂",
+        type: "free_time",
+        title: "東映太秦映画村",
+        meta: "怪々YOKAI祭 · 園區自由活動",
+        flexible: true,
+        runtime: "now",
+        map: placeMaps.toei,
       },
       {
-        time: "17:15",
-        type: "restaurant",
-        title: "そば切り 百夜月",
-        meta: "只收現金 · 不接受預約",
-        note: "隔天還有 USJ，不要提前把雙腳報廢。",
-        map: placeMaps.momoyozuki,
-        tabelog: "https://tabelog.com/nara/A2901/A290101/29000692/",
+        time: "16:30",
+        type: "activity",
+        title: "東映太秦映画村 導覽",
+        meta: "已預約",
+        status: "RESERVED",
+        runtime: "next",
+        map: placeMaps.toei,
       },
-    ],
-    optional: [
-      { name: "春日大社", map: placeMaps.kasuga },
-      { name: "奈良町", map: placeMaps.naramachi },
+      {
+        time: "17:30",
+        type: "activity",
+        title: "百鬼夜行",
+        meta: "怪々YOKAI祭",
+        map: placeMaps.toei,
+      },
+      {
+        time: "19:30",
+        type: "activity",
+        title: "うずまさ百鬼夜行",
+        meta: "Night show",
+        note: "隔天還有 USJ，看完就回大阪。",
+        map: placeMaps.toei,
+      },
     ],
   },
   {
@@ -202,6 +208,7 @@ export const days = [
         type: "activity",
         title: "Universal Studios Japan",
         meta: "Halloween · 園區內自由活動",
+        status: "TICKET READY",
         map: "Universal Studios Japan",
       },
     ],
@@ -248,12 +255,18 @@ export const reservations = [
     completeStatus: "Reserved",
   },
   {
+    date: "SEP 13 · 16:30",
+    type: "activity",
+    title: "東映太秦映画村 導覽",
+    todoId: "toei-tour",
+    completeStatus: "Reserved",
+  },
+  {
     date: "SEP 14",
     type: "activity",
     title: "Universal Studios Japan",
     todoId: "usj-ticket",
     completeStatus: "Ticket ready",
-    pendingStatus: "尚未確認門票",
   },
   {
     date: "SEP 10—15",
@@ -275,7 +288,7 @@ export const initialTodos = [
   { id: "hotel", label: "住宿：Aloft Osaka Dojima", done: true },
   { id: "museum", label: "9/11 森之宮空間美術館", done: true },
   { id: "seijiro", label: "9/12 19:30 清次郎燒肉", done: true },
-  { id: "ikoma", label: "9/13 生駒山上遊樂園", done: true },
-  { id: "usj-ticket", label: "USJ 門票／事前票券", done: false },
+  { id: "toei-tour", label: "9/13 16:30 東映太秦映画村導覽", done: true },
+  { id: "usj-ticket", label: "USJ 門票／事前票券", done: true },
   { id: "flights", label: "機票：JX822 / JX821", done: true },
 ];
