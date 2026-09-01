@@ -1,23 +1,68 @@
-import { Container, Paper, Stack, Tab, Tabs, Typography } from "@mui/material";
+import { Paper, Tab, Tabs, Typography } from "@mui/material";
 import { useViewerData } from "./viewerContext";
 
 export function DateRail({ selected, onSelect }) {
   const { days } = useViewerData();
   return (
-    <Paper square sx={{ position: "sticky", top: 0, zIndex: 10, borderBottom: 1, borderColor: "divider", bgcolor: "color-mix(in srgb, var(--trip-color-paper) 94%, transparent)", backdropFilter: "blur(12px)" }}>
-      <Container maxWidth="lg" disableGutters>
-        <Tabs value={selected} onChange={(_, value) => onSelect(value)} variant="fullWidth" aria-label="選擇旅行日期" sx={{ minHeight: 76, "& .MuiTab-root": { minWidth: 0, minHeight: 76, p: 0.5, fontSize: 10 }, "& .Mui-selected": { color: "text.primary" } }}>
+    <Paper
+      square
+      className="!sticky top-0 z-10 border-b !border-trip-hairline !bg-[color-mix(in_srgb,var(--trip-color-paper)_92%,transparent)] backdrop-blur-[14px]"
+    >
+      <div className="mx-auto w-full max-w-[1200px]">
+        <Tabs
+          value={selected}
+          onChange={(_, value) => onSelect(value)}
+          variant="scrollable"
+          scrollButtons={false}
+          aria-label="選擇旅行日期"
+          className="!min-h-[70px]"
+          sx={{
+            "& .MuiTabs-flexContainer": { justifyContent: { sm: "center" } },
+            "& .MuiTabs-indicator": {
+              height: 4,
+              bgcolor: "var(--trip-color-attention)",
+            },
+            "& .MuiTab-root": {
+              minWidth: { xs: 65, sm: 92 },
+              minHeight: 70,
+              px: 1,
+              py: 0.75,
+              color: "text.secondary",
+            },
+            "& .Mui-selected": { color: "var(--trip-color-attention)" },
+          }}
+        >
           {days.map((day) => (
-            <Tab key={day.id} value={day.date} onClick={() => { if (selected === day.date) onSelect(day.date); }} label={(
-              <Stack spacing={0} alignItems="center">
-                <Typography fontFamily="ui-monospace" fontSize={18} fontWeight={700}>{day.n}</Typography>
-                <Typography fontFamily="ui-monospace" fontSize={9}>{day.dow}</Typography>
-                <Typography fontSize={10}>{day.label}</Typography>
-              </Stack>
-            )} />
+            <Tab
+              key={day.id}
+              value={day.date}
+              aria-current={selected === day.date ? "date" : undefined}
+              onClick={() => {
+                if (selected === day.date) onSelect(day.date);
+              }}
+              label={
+                <div className="flex flex-col items-center">
+                  <Typography
+                    fontFamily="var(--trip-font-serif)"
+                    fontSize={21}
+                    fontWeight={700}
+                    lineHeight={1}
+                  >
+                    {day.n}
+                  </Typography>
+                  <Typography
+                    fontFamily="var(--trip-font-utility)"
+                    fontSize={9}
+                  >
+                    {day.dow}
+                  </Typography>
+                  <Typography fontSize={10}>{day.label}</Typography>
+                </div>
+              }
+            />
           ))}
         </Tabs>
-      </Container>
+      </div>
     </Paper>
   );
 }

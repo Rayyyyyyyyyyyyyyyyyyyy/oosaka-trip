@@ -8,6 +8,21 @@ import {
 import { OpenAIApiKeySettings } from "./OpenAIApiKeySettings";
 
 describe("OpenAIApiKeySettings", () => {
+  it("starts flush within its owning Paper without a second top inset", () => {
+    render(<OpenAIApiKeySettings />);
+    const section = screen.getByTestId("openai-key-settings");
+
+    expect(parseFloat(getComputedStyle(section).marginTop)).toBe(0);
+    expect(parseFloat(getComputedStyle(section).paddingTop)).toBe(0);
+    expect(screen.queryByRole("status")).toBeNull();
+    const buttonRow = screen.getByRole("button", {
+      name: "儲存 key",
+    }).parentElement;
+    expect([...buttonRow.classList]).toEqual(
+      expect.arrayContaining(["flex", "flex-wrap", "gap-2"]),
+    );
+  });
+
   it("saves a personal key without rendering its value", async () => {
     const user = userEvent.setup();
     render(<OpenAIApiKeySettings />);

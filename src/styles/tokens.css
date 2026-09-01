@@ -1,14 +1,63 @@
 :root {
-  --trip-color-paper: #f3f1eb;
-  --trip-color-surface: #fbfaf6;
-  --trip-color-soft: #e9e7e0;
-  --trip-color-ink: #20221f;
-  --trip-color-muted: #74766f;
-  --trip-color-moss: #536358;
-  --trip-color-acid: #d9ef6f;
-  --trip-color-orange: #e36f4d;
-  --trip-color-success: #60744e;
-  --trip-color-warning: #b76b32;
-  --trip-font-serif: "Noto Serif TC", ui-serif, serif;
-  --trip-font-sans: "Noto Sans TC", ui-sans-serif, system-ui, sans-serif;
+  color-scheme: light dark;
+  --trip-color-paper: #f6f1e7;
+  --trip-color-surface: #fffaf0;
+  --trip-color-soft: #e9ede7;
+  --trip-color-travel: #17354b;
+  --trip-color-movement: #356c91;
+  --trip-color-warmth: #e9bd4d;
+  --trip-color-attention: #b94535;
+  --trip-color-readiness: #506d58;
+  --trip-color-ink: #1c2a31;
+  --trip-color-muted: #626f77;
+  --trip-color-hairline: #cfd3cf;
+  --trip-color-focus: #1676a3;
+  --trip-color-success: #506d58;
+  --trip-color-warning: #b64f3f;
+  --trip-color-moss: var(--trip-color-travel);
+  --trip-color-acid: var(--trip-color-warmth);
+  --trip-color-orange: var(--trip-color-attention);
+  --trip-font-serif:
+    "Noto Serif TC", "Noto Serif JP", "Songti TC", ui-serif, Georgia, serif;
+  --trip-font-sans:
+    "Noto Sans TC", "Noto Sans JP", "PingFang TC", "Hiragino Sans",
+    ui-sans-serif, system-ui, sans-serif;
+  --trip-font-utility: "SFMono-Regular", "Roboto Mono", ui-monospace, monospace;
+  --trip-folio-measure: 52rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --trip-color-paper: #101b23;
+    --trip-color-surface: #172731;
+    --trip-color-soft: #213640;
+    --trip-color-travel: #0c171f;
+    --trip-color-movement: #79bce5;
+    --trip-color-warmth: #f2cb68;
+    --trip-color-attention: #ff8972;
+    --trip-color-readiness: #91ad8e;
+    --trip-color-ink: #f4eee3;
+    --trip-color-muted: #b0bdc4;
+    --trip-color-hairline: #3c505b;
+    --trip-color-focus: #8dd7ff;
+    --trip-color-success: #91ad8e;
+    --trip-color-warning: #ff9a80;
+  }
+}
+
+:root[data-trip-theme="dark"] {
+  --trip-color-paper: #101b23;
+  --trip-color-surface: #172731;
+  --trip-color-soft: #213640;
+  --trip-color-travel: #0c171f;
+  --trip-color-movement: #79bce5;
+  --trip-color-warmth: #f2cb68;
+  --trip-color-attention: #ff8972;
+  --trip-color-readiness: #91ad8e;
+  --trip-color-ink: #f4eee3;
+  --trip-color-muted: #b0bdc4;
+  --trip-color-hairline: #3c505b;
+  --trip-color-focus: #8dd7ff;
+  --trip-color-success: #91ad8e;
+  --trip-color-warning: #ff9a80;
 }

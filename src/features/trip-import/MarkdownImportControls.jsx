@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Alert, Button, Paper, Stack, Typography } from "@mui/material";
+import { Alert, Button, Paper, Typography } from "@mui/material";
 import { Description } from "@mui/icons-material";
 import { extractMarkdownFile, validateMarkdownFile } from "./markdownAdapter";
 
@@ -9,7 +9,13 @@ const labels = {
   parsing: "正在透過你的個人 OpenAI key 安全解析…",
 };
 
-export function MarkdownImportControls({ state, dispatch, onExtracted, onRetry, onCancel }) {
+export function MarkdownImportControls({
+  state,
+  dispatch,
+  onExtracted,
+  onRetry,
+  onCancel,
+}) {
   const messageRef = useRef(null);
   const latestRequestIdRef = useRef(null);
   const [dragActive, setDragActive] = useState(false);
@@ -18,9 +24,12 @@ export function MarkdownImportControls({ state, dispatch, onExtracted, onRetry, 
     if (state.error) messageRef.current?.focus();
   }, [state.error]);
 
-  useEffect(() => () => {
-    latestRequestIdRef.current = null;
-  }, []);
+  useEffect(
+    () => () => {
+      latestRequestIdRef.current = null;
+    },
+    [],
+  );
 
   const processFile = async (file) => {
     if (!file) return;
@@ -36,7 +45,12 @@ export function MarkdownImportControls({ state, dispatch, onExtracted, onRetry, 
       onExtracted?.(sourceDocument, requestId);
     } catch (error) {
       if (latestRequestIdRef.current !== requestId) return;
-      dispatch({ type: "FAIL", requestId, recoverTo: state.tripId ? "viewing" : "idle", error: error.message });
+      dispatch({
+        type: "FAIL",
+        requestId,
+        recoverTo: state.tripId ? "viewing" : "idle",
+        error: error.message,
+      });
     }
   };
 
@@ -54,37 +68,73 @@ export function MarkdownImportControls({ state, dispatch, onExtracted, onRetry, 
   };
 
   return (
-    <Stack spacing={1.5} mt={4} pt={3} borderTop={1} borderColor="divider">
+    <div className="mt-4 flex flex-col gap-3 border-t border-trip-hairline pt-4">
       <Typography variant="overline">MARKDOWN V0</Typography>
       <Typography variant="caption" color="text.secondary">
-        一次處理一個 .md。XLSX 會在 Hosted Delivery 之後以窄版 Travel Table change 支援，其他格式仍待證據驗證。
+        一次處理一個 .md。XLSX 會在 Hosted Delivery 之後以窄版 Travel Table
+        change 支援，其他格式仍待證據驗證。
       </Typography>
       <Alert severity="info" variant="outlined" role="note">
-        你的檔案會由此瀏覽器使用個人 API key 直接送到 OpenAI。Trip Runtime 不保存來源或模型回覆；未完成 Review 只存在此分頁，重新整理或關閉就會丟棄。
+        你的檔案會由此瀏覽器使用個人 API key 直接送到 OpenAI。Trip Runtime
+        不保存來源或模型回覆；未完成 Review
+        只存在此分頁，重新整理或關閉就會丟棄。
       </Alert>
       <Paper
         variant="outlined"
-        onDragEnter={(event) => { event.preventDefault(); setDragActive(true); }}
+        className="!p-4 text-center"
+        onDragEnter={(event) => {
+          event.preventDefault();
+          setDragActive(true);
+        }}
         onDragOver={(event) => event.preventDefault()}
         onDragLeave={() => setDragActive(false)}
         onDrop={dropFile}
-        sx={{ p: 2, textAlign: "center", borderStyle: "dashed", bgcolor: dragActive ? "action.hover" : "transparent" }}
+        sx={{
+          borderStyle: "dashed",
+          bgcolor: dragActive ? "action.hover" : "transparent",
+        }}
       >
-        <Typography variant="body2" mb={1}>拖放一個 Markdown 檔案到這裡，或</Typography>
-        <Button component="label" variant="contained" startIcon={<Description />}>
+        <Typography variant="body2" className="!mb-2">
+          拖放一個 Markdown 檔案到這裡，或
+        </Typography>
+        <Button
+          component="label"
+          variant="contained"
+          startIcon={<Description />}
+        >
           選擇 Markdown
-          <input aria-label="選擇 Markdown 檔案" hidden type="file" accept="text/markdown,.md" onChange={chooseFile} />
+          <input
+            aria-label="選擇 Markdown 檔案"
+            hidden
+            type="file"
+            accept="text/markdown,.md"
+            onChange={chooseFile}
+          />
         </Button>
       </Paper>
-      {labels[state.status] && <Typography role="status" aria-live="polite">{labels[state.status]}</Typography>}
-      {state.error && <Alert ref={messageRef} tabIndex={-1} role="alert" severity="error">{state.error}</Alert>}
-      {state.status === "parse_error" && (
-        <Stack direction="row" spacing={1}>
-          <Button variant="contained" onClick={onRetry}>重試解析</Button>
-          <Button onClick={() => dispatch({ type: "RETURN_TO_IDLE" })}>返回上傳</Button>
-        </Stack>
+      {labels[state.status] && (
+        <Typography role="status" aria-live="polite">
+          {labels[state.status]}
+        </Typography>
       )}
-      {state.status === "parsing" && <Button onClick={onCancel}>取消解析</Button>}
-    </Stack>
+      {state.error && (
+        <Alert ref={messageRef} tabIndex={-1} role="alert" severity="error">
+          {state.error}
+        </Alert>
+      )}
+      {state.status === "parse_error" && (
+        <div className="flex flex-wrap gap-2">
+          <Button variant="contained" onClick={onRetry}>
+            重試解析
+          </Button>
+          <Button onClick={() => dispatch({ type: "RETURN_TO_IDLE" })}>
+            返回上傳
+          </Button>
+        </div>
+      )}
+      {state.status === "parsing" && (
+        <Button onClick={onCancel}>取消解析</Button>
+      )}
+    </div>
   );
 }

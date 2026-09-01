@@ -856,6 +856,45 @@ Golden Screen 的用途不是讓每一趟旅行長一模一樣。
 - surface language
 - navigation behavior
 
+## 24.1 Implementation evidence — 2026-09-01
+
+`implement-mvp-result-ui-skyline` 已完成 Overview 與 Uji Day 的 implementation prototype 與 Golden Screen browser capture。驗證環境：
+
+```text
+Mobile       390 × 844
+Desktop     1280 × 900
+Desktop folio measure   832 px
+Horizontal overflow      none
+Minimum mobile control   44 px
+Browser console errors   none
+```
+
+Golden UI #001 — Overview 驗證：
+
+- 讀序為 trip identity / date → 明示為 schematic 的 ordered journey → 最多一個 readiness attention → flight / stay anchors → day journey index。
+- Journey labels 只由 Canonical destination 與受支援的 place code 衍生；沒有座標、距離、routing、live location 或外部 enrichment。
+- 已完成的 readiness 不會留下空殼；目前若所有本機 checklist 都 ready，attention section 會誠實省略。
+- 缺少 flight 或 accommodation 的 fixture 仍保留完整 hero、journey 與 day index，不顯示 placeholder card。
+
+Golden UI #002 — Uji Day 驗證：
+
+- Date Rail、large date/day character、canonical day cues、19:30 fixed-anchor pointer、semantic timeline、collapsed optional disclosure 與 closing context 形成同一份 travel folio。
+- Fixed-anchor summary 指向唯一的 `event-seijiro` timeline article；沒有建立第二個 reservation 或 event identity。
+- Transit 維持 connector，flexible space 使用 moss/readiness role，optional places 保持在 `IF YOU STILL HAVE ENERGY` disclosure 外層。
+- Day navigation 會回到 document start，避免從 Overview 下方選日後落在新 Day 的中段。
+
+Theme / accessibility 驗證：
+
+- 實際 browser dark appearance 保留 sky、sun、coral、moss roles；primary action 改用 sky/movement，不與 night travel surface 混在一起。
+- Home dark appearance 的 MUI 衍生色另以實際 computed style 驗證：所有 standard / outlined Alert message 使用近白 ink text role；severity color 只承擔 icon、border 與低強度深色背景。Warning message 從錯誤的 1.34:1 修正為 11.74:1；disabled button 也不再繼承 light-mode 黑字，而是使用近白 ink、低強度 ink surface 與明確 disabled cursor。Outlined input 同步使用 hairline / focus roles。
+- Home 的空 status node 不再保留行高；API key status 到 Markdown heading 的 section rhythm 從不明的疊加空白收斂成 `16 px margin + hairline + 16 px padding`，兩個 key controls 維持同列、44 px 高。
+- Tailwind 正式擁有 folio width、置中、responsive padding、section spacing、flex/grid 與 breakpoint layout；MUI 保留互動元件、severity/state selector 與需要 component-slot ownership 的樣式。純 layout wrapper 使用 semantic HTML，避免 MUI `Stack` 注入的方向樣式覆蓋 Tailwind。
+- Light / dark token contract tests 對 primary text、muted text、movement、attention、readiness 與 warmth/travel pairs 維持至少 4.5:1 contrast。
+- Keyboard focus ring 為 3 px 且可見；Date Rail、Overview back、fixed-anchor pointer、optional disclosure、Directions 與 reservation/checklist controls 可由 keyboard 操作。
+- Directions 與 restaurant actions 保留 exact canonical URL，使用 `_blank` 與 `noopener noreferrer`。
+
+Stress fixtures 已涵蓋：optional-heavy、reservation-heavy、all-day、approximate/open-ended、alternative/conditional、missing anchors、no fixed anchor 與 runtime-unavailable。這次 prototype 驗證了 hierarchy、rhythm、semantic treatment、surface language 與 navigation behavior；第 25 節列出的 exact values 仍保留為可迭代 implementation choices，不升級為跨版本不可變規則。
+
 ---
 
 # 25. What Is Not Frozen Yet

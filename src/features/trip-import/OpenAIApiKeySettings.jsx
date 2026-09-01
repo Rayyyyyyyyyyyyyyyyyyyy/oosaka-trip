@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Button, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Button, TextField, Typography } from "@mui/material";
 import {
   clearOpenAIApiKey,
   hasStoredOpenAIApiKey,
@@ -50,18 +50,25 @@ export function OpenAIApiKeySettings() {
   };
 
   return (
-    <Stack spacing={2} mt={4} pt={3} borderTop={1} borderColor="divider">
+    <section
+      data-testid="openai-key-settings"
+      aria-labelledby="openai-key-settings-heading"
+      className="flex flex-col gap-3"
+    >
       <div>
-        <Typography variant="overline">OPENAI · PERSONAL KEY</Typography>
-        <Typography variant="body2" color="text.secondary" mt={0.5}>
+        <Typography id="openai-key-settings-heading" variant="overline">
+          OPENAI · PERSONAL KEY
+        </Typography>
+        <Typography variant="body2" color="text.secondary" className="!mt-1">
           解析上傳檔案時，會用你自己的 OpenAI API key 從此瀏覽器直接呼叫
           gpt-5.6-sol。
         </Typography>
       </div>
       <Alert severity="warning" variant="outlined">
         API key 會以 AES-GCM 加密後保存在此瀏覽器；解密 key 留在 IndexedDB。
-        這能避免直接讀取 localStorage 看到明文，但無法防止同源惡意程式；請使用受限的
-        Project key 並設定用量上限。
+        這能避免直接讀取 localStorage
+        看到明文，但無法防止同源惡意程式；請使用受限的 Project key
+        並設定用量上限。
       </Alert>
       <TextField
         label="OpenAI API key"
@@ -89,7 +96,7 @@ export function OpenAIApiKeySettings() {
           </>
         }
       />
-      <Stack direction="row" spacing={1}>
+      <div className="flex flex-wrap gap-2">
         <Button
           variant="contained"
           onClick={save}
@@ -100,16 +107,18 @@ export function OpenAIApiKeySettings() {
         <Button color="error" onClick={clear} disabled={busy || !hasStoredKey}>
           清除 key
         </Button>
-      </Stack>
+      </div>
       <Typography
         variant="caption"
-        color={hasStoredKey ? "success.main" : "text.secondary"}
+        color={hasStoredKey ? "success.main" : "text.primary"}
       >
         {hasStoredKey ? "已設定個人 API key" : "尚未設定 API key"}
       </Typography>
-      <Typography variant="caption" role="status" aria-live="polite">
-        {message}
-      </Typography>
-    </Stack>
+      {message && (
+        <Typography variant="caption" role="status" aria-live="polite">
+          {message}
+        </Typography>
+      )}
+    </section>
   );
 }

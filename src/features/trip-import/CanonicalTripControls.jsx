@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Alert, Button, Stack, Typography } from "@mui/material";
+import { Alert, Button, Typography } from "@mui/material";
 import { Download, UploadFile } from "@mui/icons-material";
-import { exportCanonicalJson, importCanonicalJson } from "../../storage/tripStorage";
+import {
+  exportCanonicalJson,
+  importCanonicalJson,
+} from "../../storage/tripStorage";
 
 export function CanonicalTripControls({ trip, onTripImported }) {
   const [error, setError] = useState("");
@@ -31,7 +34,7 @@ export function CanonicalTripControls({ trip, onTripImported }) {
   };
 
   return (
-    <Stack spacing={1.5} mt={4} pt={3} borderTop={1} borderColor="divider">
+    <section className="mt-4 flex flex-col gap-3 border-t border-trip-hairline pt-4">
       <Typography variant="overline">CANONICAL JSON</Typography>
       <Button component="label" variant="outlined" startIcon={<UploadFile />}>
         匯入 Trip JSON
@@ -43,7 +46,11 @@ export function CanonicalTripControls({ trip, onTripImported }) {
         />
       </Button>
       {trip && (
-        <Button variant="outlined" startIcon={<Download />} onClick={exportTrip}>
+        <Button
+          variant="outlined"
+          startIcon={<Download />}
+          onClick={exportTrip}
+        >
           匯出 Trip JSON
         </Button>
       )}
@@ -52,6 +59,6 @@ export function CanonicalTripControls({ trip, onTripImported }) {
           {error}
         </Alert>
       )}
-    </Stack>
+    </section>
   );
 }

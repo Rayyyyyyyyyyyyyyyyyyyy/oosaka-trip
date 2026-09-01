@@ -9,19 +9,38 @@
   --color-trip-moss: var(--trip-color-moss);
   --color-trip-acid: var(--trip-color-acid);
   --color-trip-orange: var(--trip-color-orange);
+  --color-trip-travel: var(--trip-color-travel);
+  --color-trip-movement: var(--trip-color-movement);
+  --color-trip-warmth: var(--trip-color-warmth);
+  --color-trip-attention: var(--trip-color-attention);
+  --color-trip-readiness: var(--trip-color-readiness);
+  --color-trip-hairline: var(--trip-color-hairline);
+  --color-trip-soft: var(--trip-color-soft);
   --font-serif-jp: var(--trip-font-serif);
   --font-sans-jp: var(--trip-font-sans);
+  --font-utility: var(--trip-font-utility);
+  --breakpoint-sm: 37.5rem;
+  --breakpoint-md: 56.25rem;
 }
 
 @layer base {
   html {
     @apply scroll-smooth;
+    background: var(--trip-color-paper);
   }
   body {
     @apply m-0 bg-trip-paper text-trip-ink antialiased;
+    min-width: 320px;
   }
   button,
   a {
     @apply touch-manipulation;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible {
+    outline: 3px solid var(--trip-color-focus) !important;
+    outline-offset: 3px !important;
   }
 }
