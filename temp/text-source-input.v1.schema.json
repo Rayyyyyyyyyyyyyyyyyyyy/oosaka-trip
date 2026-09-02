@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:trip-runtime:schema:text-source-input:v1",
+  "title": "TextSourceInput",
+  "description": "Deprecated Markdown-only candidate. Superseded by text-source-input.v2 for arbitrary pasted text.",
+  "deprecated": true,
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_id",
+    "input_mode",
+    "media_type",
+    "content",
+    "display_name"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "text-source-input.v1"
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Stable identifier for this source within the active import session."
+    },
+    "input_mode": {
+      "type": "string",
+      "enum": [
+        "markdown_file",
+        "pasted_markdown"
+      ]
+    },
+    "media_type": {
+      "const": "text/markdown"
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Complete Markdown source text. Whitespace-only input is invalid."
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Original filename for an uploaded file, or a generated/user-supplied label for pasted text."
+    }
+  },
+  "examples": [
+    {
+      "schema_version": "text-source-input.v1",
+      "source_id": "source_session_01",
+      "input_mode": "markdown_file",
+      "media_type": "text/markdown",
+      "content": "# Example Trip\n\n## Day 1\n\n- Arrive at the station",
+      "display_name": "example-trip.md"
+    },
+    {
+      "schema_version": "text-source-input.v1",
+      "source_id": "source_session_02",
+      "input_mode": "pasted_markdown",
+      "media_type": "text/markdown",
+      "content": "# Pasted Example\n\n## Day 1\n\n- Flexible afternoon",
+      "display_name": "Pasted Markdown"
+    }
+  ]
+}

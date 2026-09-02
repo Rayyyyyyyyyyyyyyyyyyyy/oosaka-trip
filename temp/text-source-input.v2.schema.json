@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:trip-runtime:schema:text-source-input:v2",
+  "title": "TextSourceInput",
+  "description": "Normalized text input for a Markdown upload or arbitrary pasted text after intake validation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_id",
+    "input_mode",
+    "media_type",
+    "content",
+    "display_name"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "text-source-input.v2"
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "input_mode": {
+      "type": "string",
+      "enum": [
+        "markdown_file",
+        "pasted_text"
+      ]
+    },
+    "media_type": {
+      "type": "string",
+      "enum": [
+        "text/markdown",
+        "text/plain"
+      ]
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Complete normalized source text. Whitespace-only input is invalid; Markdown syntax is optional for pasted text."
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "input_mode": {
+          "const": "markdown_file"
+        },
+        "media_type": {
+          "const": "text/markdown"
+        }
+      }
+    },
+    {
+      "properties": {
+        "input_mode": {
+          "const": "pasted_text"
+        },
+        "media_type": {
+          "const": "text/plain"
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "text-source-input.v2",
+      "source_id": "source_markdown_01",
+      "input_mode": "markdown_file",
+      "media_type": "text/markdown",
+      "content": "# Example Trip\n\n- Arrive at the station",
+      "display_name": "example-trip.md"
+    },
+    {
+      "schema_version": "text-source-input.v2",
+      "source_id": "source_paste_01",
+      "input_mode": "pasted_text",
+      "media_type": "text/plain",
+      "content": "第一天到車站，下午自由活動，第二天回家。",
+      "display_name": "Pasted Text"
+    }
+  ]
+}

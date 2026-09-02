@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:trip-runtime:schema:source-intake-input:v1",
+  "title": "SourceIntakeInput",
+  "description": "Session-scoped intake envelope for one Markdown, PDF, or XLSX upload, or arbitrary pasted text.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/markdown_file"
+    },
+    {
+      "$ref": "#/$defs/pdf_file"
+    },
+    {
+      "$ref": "#/$defs/xlsx_file"
+    },
+    {
+      "$ref": "#/$defs/pasted_text"
+    }
+  ],
+  "$defs": {
+    "non_blank_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "session_blob": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "blob_id",
+        "byte_length"
+      ],
+      "properties": {
+        "kind": {
+          "const": "session_blob"
+        },
+        "blob_id": {
+          "$ref": "#/$defs/non_blank_string"
+        },
+        "byte_length": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "inline_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "content"
+      ],
+      "properties": {
+        "kind": {
+          "const": "inline_text"
+        },
+        "content": {
+          "$ref": "#/$defs/non_blank_string"
+        }
+      }
+    },
+    "markdown_file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "source_id",
+        "input_mode",
+        "source_format",
+        "media_type",
+        "display_name",
+        "payload"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "source-intake-input.v1"
+        },
+        "source_id": {
+          "$ref": "#/$defs/non_blank_string"
+        },
+        "input_mode": {
+          "const": "file_upload"
+        },
+        "source_format": {
+          "const": "markdown"
+        },
+        "media_type": {
+          "const": "text/markdown"
+        },
+        "display_name": {
+          "type": "string",
+          "pattern": "\\.[mM][dD]$"
+        },
+        "payload": {
+          "$ref": "#/$defs/session_blob"
+        }
+      }
+    },
+    "pdf_file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "source_id",
+        "input_mode",
+        "source_format",
+        "media_type",
+        "display_name",
+        "payload"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "source-intake-input.v1"
+        },
+        "source_id": {
+          "$ref": "#/$defs/non_blank_string"
+        },
+        "input_mode": {
+          "const": "file_upload"
+        },
+        "source_format": {
+          "const": "pdf"
+        },
+        "media_type": {
+          "const": "application/pdf"
+        },
+        "display_name": {
+          "type": "string",
+          "pattern": "\\.[pP][dD][fF]$"
+        },
+        "payload": {
+          "$ref": "#/$defs/session_blob"
+        }
+      }
+    },
+    "xlsx_file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "source_id",
+        "input_mode",
+        "source_format",
+        "media_type",
+        "display_name",
+        "payload"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "source-intake-input.v1"
+        },
+        "source_id": {
+          "$ref": "#/$defs/non_blank_string"
+        },
+        "input_mode": {
+          "const": "file_upload"
+        },
+        "source_format": {
+          "const": "xlsx"
+        },
+        "media_type": {
+          "const": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        },
+        "display_name": {
+          "type": "string",
+          "pattern": "\\.[xX][lL][sS][xX]$"
+        },
+        "payload": {
+          "$ref": "#/$defs/session_blob"
+        }
+      }
+    },
+    "pasted_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "source_id",
+        "input_mode",
+        "source_format",
+        "media_type",
+        "display_name",
+        "payload"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "source-intake-input.v1"
+        },
+        "source_id": {
+          "$ref": "#/$defs/non_blank_string"
+        },
+        "input_mode": {
+          "const": "pasted_text"
+        },
+        "source_format": {
+          "const": "text"
+        },
+        "media_type": {
+          "const": "text/plain"
+        },
+        "display_name": {
+          "$ref": "#/$defs/non_blank_string"
+        },
+        "payload": {
+          "$ref": "#/$defs/inline_text"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "schema_version": "source-intake-input.v1",
+      "source_id": "source_upload_pdf_01",
+      "input_mode": "file_upload",
+      "source_format": "pdf",
+      "media_type": "application/pdf",
+      "display_name": "example-trip.pdf",
+      "payload": {
+        "kind": "session_blob",
+        "blob_id": "blob_session_01",
+        "byte_length": 2048
+      }
+    },
+    {
+      "schema_version": "source-intake-input.v1",
+      "source_id": "source_paste_01",
+      "input_mode": "pasted_text",
+      "source_format": "text",
+      "media_type": "text/plain",
+      "display_name": "Pasted Text",
+      "payload": {
+        "kind": "inline_text",
+        "content": "# Example Trip\n\n- Flexible afternoon"
+      }
+    }
+  ]
+}
