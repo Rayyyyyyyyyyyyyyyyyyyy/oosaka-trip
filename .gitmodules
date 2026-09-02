@@ -1,0 +1,3 @@
+[submodule "temp/Odata/24 ares/busan-travel"]
+	path = temp/Odata/24 ares/busan-travel
+	url = https://github.com/bbmddt/busan-travel.git
