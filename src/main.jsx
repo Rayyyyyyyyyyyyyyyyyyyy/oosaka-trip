@@ -131,7 +131,7 @@ function TripStatusView({ runtime }) {
           TRIP COMPLETED
         </Typography>
         <Typography variant="h1" fontSize={{ xs: 38, md: 56 }} mt={2}>
-          大阪・宇治・奈良
+          {trip.title}
         </Typography>
         <Typography color="text.secondary" mt={2}>
           旅程已結束，完整行程仍可從 Day 查看。
@@ -418,7 +418,7 @@ function DayView({ day }) {
       {day.optional && (
         <Paper sx={{ mt: 4, p: 3, bgcolor: "#e9e7e0" }}>
           <Typography variant="overline" color="text.secondary">
-            IF YOU STILL HAVE ENERGY
+            {day.optionalLabel || "IF YOU STILL HAVE ENERGY"}
           </Typography>
           <Stack direction="row" gap={1} flexWrap="wrap" mt={2}>
             {day.optional.map((place) => (
@@ -595,11 +595,7 @@ function Overview({ onDay }) {
         YOUR TRIP · 6 DAYS
       </Typography>
       <Typography variant="h1" fontSize={{ xs: 43, md: 68 }} mt={1}>
-        大阪・宇治
-        <br />
-        <Box component="span" color="primary.main">
-          奈良
-        </Box>
+        {trip.title}
       </Typography>
       <Stack divider={<Divider />} mt={5}>
         <Box py={3}>
@@ -677,9 +673,10 @@ function Overview({ onDay }) {
 }
 
 function useTodos() {
+  const storageKey = "osaka-trip-todos-v2";
   const [todos, setTodos] = useState(() => {
     try {
-      const saved = localStorage.getItem("osaka-trip-todos");
+      const saved = localStorage.getItem(storageKey);
       return saved ? JSON.parse(saved) : initialTodos;
     } catch {
       return initialTodos;
@@ -690,7 +687,7 @@ function useTodos() {
       const next = current.map((todo) =>
         todo.id === id ? { ...todo, done: !todo.done } : todo,
       );
-      localStorage.setItem("osaka-trip-todos", JSON.stringify(next));
+      localStorage.setItem(storageKey, JSON.stringify(next));
       return next;
     });
   return [todos, toggle];
