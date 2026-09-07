@@ -74,6 +74,25 @@ export const days = [
         tabelog: "https://tabelog.com/osaka/A2701/A270108/27001230/",
       },
     ],
+    sections: [
+      {
+        title: "落地後看體力選一條",
+        items: [
+          {
+            title: "Route A｜有精神＋沒下雨",
+            detail: "梅田散步 → GRAND GREEN OSAKA → 梅田藍天大樓 → 花くじら。",
+          },
+          {
+            title: "Route B｜下雨／不想曬",
+            detail: "KITTE 大阪 → 大阪站地下街 → 福島；把戶外移動壓到最低。",
+          },
+          {
+            title: "Route C｜累了",
+            detail: "飯店 → 花くじら → 回飯店。完全合法。",
+          },
+        ],
+      },
+    ],
   },
   {
     date: "2026-09-11",
@@ -85,7 +104,7 @@ export const days = [
     events: [
       { transit: "Osaka → 森之宮" },
       {
-        time: "預約",
+        time: "16:30",
         type: "activity",
         title: "Museum of Spatial Art OSAKA",
         meta: "千田泰廣 Yasuhiro Chida · 森之宮",
@@ -117,6 +136,26 @@ export const days = [
       {
         name: "BOTANI:CURRY（公布營業且時間允許才去）",
         map: placeMaps.botaniCurry,
+      },
+    ],
+    sections: [
+      {
+        title: "白天依天氣與心情選",
+        intro: "15:30 左右開始往森之宮移動，保留 16:30 預約的緩衝。",
+        items: [
+          {
+            title: "Option A｜大阪歷史博物館",
+            detail: "最推薦的雨天方案；室內比例高，前往森之宮的動線也順。",
+          },
+          {
+            title: "Option B｜大阪中之島美術館",
+            detail: "想整天看藝術再選；當日有荷蘭繪畫與 Karl Walser 展。",
+          },
+          {
+            title: "Option C｜梅田室內亂晃",
+            detail: "KITTE 大阪／大阪站一帶，不買票也不綁入場時間。",
+          },
+        ],
       },
     ],
   },
@@ -163,6 +202,16 @@ export const days = [
       { name: "朝霧通", map: placeMaps.asagiri },
       { name: "宇治上神社", map: placeMaps.ujigami },
       { name: "平等院", map: placeMaps.byodoin },
+    ],
+    sections: [
+      {
+        eyebrow: "RAIN BACKUP",
+        title: "雨天不用硬救行程",
+        items: [
+          { title: "小雨", detail: "宇治照去，依雨勢縮短河邊散步。" },
+          { title: "大雨", detail: "取消也可以；留在大阪或飯店睡覺。" },
+        ],
+      },
     ],
   },
   {
@@ -236,6 +285,23 @@ export const days = [
       },
       { name: "Strawberry Mania（順路甜點）", map: placeMaps.strawberry },
     ],
+    sections: [
+      {
+        eyebrow: "RAIN PLAN",
+        title: "天氣不好就換世界線",
+        items: [
+          {
+            title: "Plan B｜東映太秦映畫村",
+            detail:
+              "整天取代生駒＋奈良；有怪々YOKAI祭 2026 與室內設施，當天想去再決定。",
+          },
+          {
+            title: "Plan C｜Aloft Osaka Dojima",
+            detail: "睡覺、耍廢，餓了再出去吃；完全不用補景點。",
+          },
+        ],
+      },
+    ],
   },
   {
     date: "2026-09-14",
@@ -252,6 +318,19 @@ export const days = [
         title: "Universal Studios Japan",
         meta: "Halloween · 園區內自由活動",
         map: "Universal Studios Japan",
+      },
+    ],
+    sections: [
+      {
+        eyebrow: "RAIN PLAN",
+        title: "票已買，雨天照去",
+        items: [
+          {
+            title: "雨天裝備與節奏",
+            detail:
+              "帶雨衣、防水鞋或乾襪；優先室內設施、吃飯與商店，戶外秀可能臨時調整。",
+          },
+        ],
       },
     ],
   },
@@ -279,66 +358,4 @@ export const days = [
       },
     ],
   },
-];
-
-export const reservations = [
-  {
-    date: "SEP 11",
-    type: "activity",
-    title: "Museum of Spatial Art",
-    todoId: "museum",
-    completeStatus: "Reserved",
-  },
-  {
-    date: "SEP 12 · 19:30",
-    type: "restaurant",
-    title: "清次郎 北新地店",
-    todoId: "seijiro",
-    completeStatus: "Reserved",
-  },
-  {
-    date: "SEP 14",
-    type: "activity",
-    title: "USJ 門票／事前票券",
-    todoId: "usj-ticket",
-    completeStatus: "Ticket ready",
-    pendingStatus: "Action needed",
-  },
-  {
-    date: "SEP 10—15",
-    type: "hotel",
-    title: "Aloft Osaka Dojima",
-    todoId: "hotel",
-    completeStatus: "Confirmed",
-  },
-  {
-    date: "SEP 10 / 15",
-    type: "flight",
-    title: "JX822 · JX821",
-    todoId: "flights",
-    completeStatus: "Confirmed",
-  },
-];
-
-export const initialTodos = [
-  { id: "hotel", label: "住宿：Aloft Osaka Dojima", done: true },
-  { id: "museum", label: "9/11 森之宮空間美術館", done: true },
-  { id: "uji", label: "9/12 宇治", done: true },
-  { id: "seijiro", label: "9/12 19:30 清次郎燒肉", done: true },
-  { id: "ikoma", label: "9/13 生駒山上遊樂園", done: true },
-  { id: "nara", label: "9/13 奈良", done: true },
-  { id: "usj-day", label: "9/14 USJ", done: true },
-  { id: "hanakujira", label: "9/10 晚餐：花くじら 本店", done: true },
-  {
-    id: "dinner-0911",
-    label: "9/11 晚餐：さしす／さかえ（當天選）",
-    done: false,
-  },
-  {
-    id: "dinner-0913",
-    label: "9/13 晚餐：百夜月／福太郎（當天選）",
-    done: false,
-  },
-  { id: "usj-ticket", label: "USJ 門票／事前票券", done: false },
-  { id: "flights", label: "機票：JX822 / JX821", done: true },
 ];
