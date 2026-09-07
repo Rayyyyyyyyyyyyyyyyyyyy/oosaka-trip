@@ -1,3 +1,5 @@
+// Canonical, render-ready itinerary data.
+// Documents under temp/ are source references and must not be imported at runtime.
 export const trip = {
   title: "關西",
   period: "SEP 10 — SEP 15",
@@ -35,6 +37,8 @@ const placeMaps = {
     "https://www.google.com/maps/search/?api=1&query=%E3%81%AA%E3%82%89%E3%81%BE%E3%81%A1%20%E5%A5%88%E8%89%AF",
   strawberry:
     "https://www.google.com/maps/search/?api=1&query=Strawberry%20Mania%20%E9%81%93%E9%A0%93%E5%A0%80%E5%BA%97",
+  miracleWorld:
+    "https://www.google.com/maps/search/?api=1&query=MIRACLE%20WORLD%20OSAKA%20Namba",
 };
 
 export const days = [
@@ -61,13 +65,6 @@ export const days = [
         map: "Aloft Osaka Dojima Osaka",
       },
       {
-        time: "午後",
-        type: "work",
-        title: "Remote",
-        meta: "Flexible · 飯店工作",
-        flexible: true,
-      },
-      {
         time: "晚上",
         type: "restaurant",
         title: "花くじら 本店",
@@ -84,15 +81,8 @@ export const days = [
     dow: "FRI",
     label: "藝術",
     title: "森之宮",
-    subtitle: "Remote＋空間美術館",
+    subtitle: "空間美術館＋自由活動",
     events: [
-      {
-        time: "白天",
-        type: "work",
-        title: "Remote",
-        meta: "Flexible · 飯店工作",
-        flexible: true,
-      },
       { transit: "Osaka → 森之宮" },
       {
         time: "預約",
@@ -236,9 +226,14 @@ export const days = [
         tabelog: "https://tabelog.com/osaka/A2701/A270202/27002665/",
       },
     ],
+    optionalLabel: "OPTIONAL / BACKUP",
     optional: [
       { name: "春日大社", map: placeMaps.kasuga },
       { name: "奈良町", map: placeMaps.naramachi },
+      {
+        name: "MIRACLE WORLD OSAKA（天候取消或提早回難波時）",
+        map: placeMaps.miracleWorld,
+      },
       { name: "Strawberry Mania（順路甜點）", map: placeMaps.strawberry },
     ],
   },

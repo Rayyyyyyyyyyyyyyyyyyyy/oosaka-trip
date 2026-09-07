@@ -1,0 +1,574 @@
+{
+  "version": 2,
+  "timestamp": 1788003460543,
+  "basicData": {
+    "destinations": "大阪",
+    "dates": "2026-09-10 to 2026-09-15",
+    "type": "休閒 (慢步調)",
+    "travelers": 2,
+    "hasTransitTour": false,
+    "isMultiCityFlight": false,
+    "hasFlights": true,
+    "transportMode": "public",
+    "needParking": false,
+    "specialRequests": "",
+    "priceRanges": {
+      "high": false,
+      "medium": false,
+      "low": false
+    },
+    "enableCreditCard": true,
+    "issuingCountry": "TW",
+    "otherCountryName": ""
+  },
+  "simpleFlights": {
+    "outbound": {
+      "mode": "flight",
+      "date": "",
+      "depTime": "",
+      "arrTime": "",
+      "code": "",
+      "station": "",
+      "type": "去程"
+    },
+    "transit": {
+      "mode": "flight",
+      "date": "",
+      "depTime": "",
+      "arrTime": "",
+      "code": "",
+      "station": "",
+      "type": "中轉"
+    },
+    "inbound": {
+      "mode": "flight",
+      "date": "",
+      "depTime": "",
+      "arrTime": "",
+      "code": "",
+      "station": "",
+      "type": "回程"
+    }
+  },
+  "multiFlights": [
+    {
+      "id": 1788000458112,
+      "type": "移動",
+      "mode": "flight",
+      "date": "",
+      "depTime": "",
+      "arrTime": "",
+      "code": "",
+      "station": "",
+      "isOpen": true
+    }
+  ],
+  "accommodations": [],
+  "itineraryData": {
+    "trip_summary": "這是一趟為期6天、專為雙人打造的大阪「慢活療癒」之旅（2026年9月10日至9月15日）。本行程嚴格遵循極慢節奏，每天僅安排2至3個精選景點，徹底告別行軍式行程。您將利用極其便利的大眾運輸網絡，悠閒穿梭於大阪的綠意公園與充滿人文氣息的街區，並在無預算限制下，細細品味頂級的關西美食。這是一場重質不重量、充滿鬆弛感的度假體驗。",
+    "currency_rate": "1 JPY ≈ 0.21 TWD",
+    "currency_rate_val": 0.21,
+    "currency_code": "JPY",
+    "city_guides": {
+      "大阪": {
+        "history_culture": "大阪自古以來便是日本的商業重鎮，被譽為「天下廚房」。與京都的優雅古典不同，大阪展現出蓬勃的庶民活力與熱情幽默。這裡不僅是章魚燒、大阪燒等平民美食的發源地，更擁有歷史悠久的大阪城，呈現出獨特的商賈文化與現代繁華交融的都市魅力。",
+        "transport_tips": "大阪市區交通極為發達。建議購買並儲值ICOCA卡（類似悠遊卡）以便輕鬆搭乘地鐵與JR。若當日乘車次數較多，可考慮購買「大阪地鐵一日券」。大阪地鐵路線規劃呈棋盤狀，標示清晰且多有中文，非常適合自由行旅客慢速探索。",
+        "safety_scams": "大阪整體治安良好，但仍需注意以下幾點：在心齋橋或道頓堀等繁華鬧區，應拒絕街頭拉客（特別是居酒屋或酒吧的拉客行為，可能存在高額人頭費或隱藏消費）；在人潮擁擠處請保管好隨身財物；搭乘深夜電車時注意安全避開醉酒乘客。",
+        "subsidies": "外國旅客可多加利用「大阪樂遊券（Osaka e-Pass）」或「大阪周遊卡」，雖然本行程節奏較慢，但部分熱門景點（如梅田藍天大廈、道頓堀觀光船）出示此券可享有免費或折扣優惠。此外，各大百貨公司常針對外國旅客發放5%折扣券（如高島屋Hello Kitty卡）。",
+        "tax_refund": "日本現行消費稅為10%（外帶食品等適用輕減稅率8%）。在貼有「Tax-Free」標誌的店家購物，同一天內在同一家店消費含稅滿5,500日圓以上，即可出示護照正本辦理免稅。大部分百貨公司會收取約1.55%的免稅手續費，一般藥妝店及電器行則直接以未稅價結帳。",
+        "major_banks_list": [
+          "三菱UFJ銀行 (MUFG Bank)",
+          "三井住友銀行 (SMBC)",
+          "瑞穗銀行 (Mizuho Bank)",
+          "郵貯銀行 (Japan Post Bank)"
+        ],
+        "basic_phrases": [
+          "謝謝：ありがとう (Arigatou) / ありがとうございます (Arigatou gozaimasu)",
+          "不好意思（打擾了/借過）：すみません (Sumimasen)",
+          "請問這個多少錢？：これはいくらですか？ (Kore wa ikura desu ka?)",
+          "請給我這個：これをお願いします (Kore wo onegai shimasu)",
+          "好吃/美味：美味しいです (Oishii desu)"
+        ]
+      }
+    },
+    "created": 1788001307795,
+    "days": [
+      {
+        "day_index": 1,
+        "date": "2026-09-10",
+        "city": "大阪",
+        "title": "抵達關西與慢活難波散策",
+        "weather_forecast": "初秋微涼，氣溫約 22-28 度，晴朗舒適。",
+        "clothing_suggestion": "建議穿著輕便棉質短袖，並隨身攜帶一件薄外套以防傍晚起風微涼。",
+        "timeline": [
+          {
+            "time": "12:00",
+            "type": "flight",
+            "title": "抵達關西國際機場 (KIX)",
+            "description": "抵達大阪關西機場。辦理入境手續、提取行李。以悠閒、不慌不忙的步調開啟您的放鬆旅程。",
+            "location_query": "Kansai International Airport (KIX)",
+            "transport_detail": "抵達後，跟隨指示牌前往南海電鐵車站，搭乘特急 Rapi:t 前往難波站（約 38 分鐘）。",
+            "price_level": "Mid",
+            "warnings_tips": "建議提前在網上購買南海電鐵特急 Rapi:t 的電子票，現場兌換更快速省時。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "14:30",
+            "type": "hotel",
+            "title": "大阪難波格拉斯麗酒店 Check-in / 寄存行李",
+            "description": "抵達難波站後，步行前往飯店辦理入住或寄存行李。稍作休息、洗把臉，準備開始輕鬆的市區漫步。",
+            "location_query": "Hotel Gracery Osaka Namba",
+            "transport_detail": "自南海難波站步行約 7 分鐘即可抵達飯店。",
+            "price_level": "Mid",
+            "warnings_tips": "飯店大廳設計高雅，提供免費行李寄存服務，可先整理隨身包包輕裝出發。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "15:30",
+            "type": "spot",
+            "title": "道頓堀與心齋橋筋慢步",
+            "description": "避開擁擠的排隊行程，沿著道頓堀川運河慢跑道悠閒散步，與著名地標「跑跑卡丁車固力果看板」合照。接著走進心齋橋筋，隨意逛逛藥妝與特色小店，不設限時間與目的地。",
+            "location_query": "Dotonbori",
+            "transport_detail": "自飯店步行約 8 分鐘即可抵達道頓堀川。",
+            "price_level": "Low",
+            "warnings_tips": "午後陽光較溫和，適合在運河邊坐下吹吹風，享受大阪熱情的市井氣氛。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "19:06",
+            "title": "吃飯",
+            "description": "來到大阪必體驗的美食文化，從道頓堀的街頭小吃到心齋橋的精緻料理，盡情享受關西特有的鮮美風味。",
+            "location_query": "大阪美食餐廳",
+            "transport_detail": "多數熱門餐廳集中在難波、心齋橋一帶，搭乘地鐵御堂筋線至難波站或心齋橋站步行即可到達。",
+            "suggested_duration": "90分鐘",
+            "type": "meal",
+            "warnings_tips": "熱門排隊名店建議提前透過網路預約或避開尖峰用餐時段，部分店家僅收現金，建議隨身攜帶日幣現鈔。",
+            "menu_recommendations": [
+              {
+                "local": "お好み焼き",
+                "cn": "大阪燒",
+                "price": "1,000 - 1,500 JPY"
+              },
+              {
+                "local": "たこ焼き",
+                "cn": "章魚燒",
+                "price": "500 - 800 JPY"
+              },
+              {
+                "local": "串カツ",
+                "cn": "串炸",
+                "price": "150 - 300 JPY (每串)"
+              },
+              {
+                "local": "豚まん",
+                "cn": "豬肉包",
+                "price": "200 - 400 JPY"
+              }
+            ],
+            "user_notes": "",
+            "photos": []
+          },
+          {
+            "time": "18:00",
+            "type": "meal",
+            "title": "松阪牛燒肉 M (法善寺橫丁店)",
+            "description": "在極具江戶風情的法善寺橫丁巷弄內，享用頂級日本三大和牛之一的松阪牛燒肉。店內環境清幽、隱密性高，服務人員會貼心介紹各部位肉質與烤法，提供無壓力的奢華用餐體驗。",
+            "location_query": "Matsusaka Gyu Yakiniku M Hozenji Yokocho",
+            "transport_detail": "從道頓堀步行約 3 分鐘即可抵達隱密清靜的法善寺橫丁。",
+            "price_level": "High",
+            "warnings_tips": "因該店極受歡迎，務必提早於官方網站預約，以免現場久候破壞悠閒心情。",
+            "menu_recommendations": [
+              "松阪牛拼盤 (Matsusaka Beef Platter)",
+              "炙燒松阪牛握壽司 (Torched Matsusaka Beef Sushi)",
+              "蒜香石鍋拌飯 (Garlic Stone-roasted Rice)"
+            ]
+          }
+        ]
+      },
+      {
+        "day_index": 2,
+        "date": "2026-09-11",
+        "city": "大阪",
+        "title": "綠意大阪城與中之島河畔咖啡午後",
+        "weather_forecast": "多雲時晴，氣溫約 21-27 度，風力溫和。",
+        "clothing_suggestion": "穿著透氣服飾搭配一雙好走的休閒鞋，適合公園漫步與戶外河畔久坐。",
+        "timeline": [
+          {
+            "time": "10:30",
+            "type": "spot",
+            "title": "大阪城公園與御座船體驗",
+            "description": "避開清晨的微涼，來到綠意盎然的大阪城公園。不急著爬上天守閣，而是搭乘充滿金箔裝飾的「大阪城御座船」，在護城河上悠閒漂流，換個角度靜靜欣賞這座宏偉的石牆古城。",
+            "location_query": "Osaka Castle Park",
+            "transport_detail": "從難波站搭乘地鐵御堂筋線至本町站，轉乘中央線至谷町四丁目站，步行約 10 分鐘進入公園。",
+            "price_level": "Mid",
+            "warnings_tips": "御座船每 10-15 分鐘一班，船上有遮陽棚，非常適合不喜歡走陡坡或階梯的休閒旅客。",
+            "menu_recommendations": [],
+            "ai_details": {
+              "route_guide": "建議從森之宮站出發，沿著噴水池漫步至天守閣，欣賞護城河風光。參觀完天守閣後，步行至極樂橋碼頭搭乘御座船，以水上視角仰望城牆與石垣，最後從大手門出口離場，路線順暢且能完整體驗歷史氛圍。",
+              "must_visit_shops": [
+                {
+                  "name": "JO-TERRACE OSAKA",
+                  "specialty": "結合多間現代餐廳與咖啡廳，適合在此休憩用餐，建築設計具現代感。"
+                },
+                {
+                  "name": "大阪城本丸商店",
+                  "specialty": "位於天守閣內，販售各式戰國時代紀念品及限定版大阪城週邊商品。"
+                },
+                {
+                  "name": "御座船售票處紀念品亭",
+                  "specialty": "販售與御座船相關的限定紀念品，以及極具特色的黃金裝飾伴手禮。"
+                }
+              ],
+              "safety_alert": "公園腹地廣大，建議結伴同行。避開深夜時段遊覽，需注意防曬及補充水分。御座船可能因水位或天氣因素停駛，建議出發前確認官網營運狀況，避免在非官方推銷處購票。",
+              "mini_map_desc": "從地鐵森之宮站1號出口出來即達公園入口，往北步行經過噴水池與廣場，穿過內護城河橋樑後即可抵達天守閣，御座船乘船處位於天守閣北方極樂橋下方的護城河邊。",
+              "walking_route": [
+                "起點: 地鐵中央線森之宮站1號出口",
+                "途經1: 森之宮公園廣場噴水池",
+                "途經2: 豐國神社與天守閣主建築",
+                "終點: 大阪城公園與御座船體驗"
+              ]
+            },
+            "user_notes": ""
+          },
+          {
+            "time": "12:30",
+            "type": "meal",
+            "title": "得正 咖哩烏龍麵 (森之宮店)",
+            "description": "位於公園旁的在地知名老店。濃郁且帶點甜辣味的大阪風咖哩，搭配彈牙的手打烏龍麵，口感絕佳。店內環境溫馨，點一碗熱騰騰的麵，舒緩早晨散步的疲勞。",
+            "location_query": "Tokumasa Morinomiya",
+            "transport_detail": "自大阪城御座船乘船處步行或搭乘公園小火車至森之宮出口，步行約 3 分鐘即可抵達。",
+            "price_level": "Low",
+            "warnings_tips": "咖哩醬汁濃郁，吃的時候建議穿著深色衣服或使用店家提供的紙圍兜，避免濺到衣物。",
+            "menu_recommendations": [
+              "炸豬排咖哩烏龍麵 (Pork Cutlet Curry Udon)",
+              "溫泉蛋咖哩烏龍麵 (Soft Boiled Egg Curry Udon)"
+            ]
+          },
+          {
+            "time": "14:30",
+            "type": "spot",
+            "title": "中之島公園散策 & Moto Coffee 河畔下午茶",
+            "description": "前往被兩條河川環繞的綠洲「中之島公園」。隨後在「Moto Coffee」挑選一個戶外露台座位，一邊喝著手沖咖啡，一邊看著河水靜靜流淌，享受不被時間打擾的愜意午後。",
+            "location_query": "Moto Coffee Osaka",
+            "transport_detail": "從森之宮站搭乘地鐵中央線至堺筋本町站，轉乘堺筋線至北濱站，出站步行 1 分鐘即達。",
+            "price_level": "Mid",
+            "warnings_tips": "河畔露台座位非常熱門，若遇滿座，可在現場稍作登記，或先在公園玫瑰園（玫瑰花季）散步一圈再回來。",
+            "menu_recommendations": [
+              "手沖單品咖啡 (Drip Coffee)",
+              "經典焦糖布丁 (Caramel Pudding)",
+              "起司蛋糕 (Cheesecake)"
+            ]
+          },
+          {
+            "time": "18:00",
+            "type": "meal",
+            "title": "北新地 孤柳 (Taro) 懷石料理",
+            "description": "晚餐特別安排在精緻高雅的北新地商圈，品嚐榮獲米其林星級肯定的現代懷石料理。主廚運用當季最優質的食材，打造視覺與味覺雙重享受的無菜單料理。每一道菜節奏緩慢，適合細細品味。",
+            "location_query": "Kitashinchi Koryu Osaka",
+            "transport_detail": "自北濱站搭乘計程車約 7 分鐘（約 1.5 公里）即可輕鬆抵達北新地，省去換乘地鐵的步行體力。",
+            "price_level": "High",
+            "warnings_tips": "此餐廳完全預約制，席次極少。建議提前2個月以上進行預約。建議穿著半正式休閒裝（Smart Casual）前往。",
+            "menu_recommendations": [
+              "季節主廚無菜單懷石料理 (Seasonal Omakase Course)"
+            ]
+          }
+        ]
+      },
+      {
+        "day_index": 3,
+        "date": "2026-09-12",
+        "city": "大阪",
+        "title": "懷舊中崎町與高空落日景觀",
+        "weather_forecast": "晴時多雲，氣溫約 20-26 度，傍晚風力稍大較涼。",
+        "clothing_suggestion": "適合文青風格穿搭。由於傍晚會前往梅田藍天大廈露天展望台，建議多帶一件防風外套。",
+        "timeline": [
+          {
+            "time": "11:00",
+            "type": "spot",
+            "title": "中崎町復古小巷漫步",
+            "description": "遠離梅田繁華喧囂的摩天大樓，徒步走進鄰近的中崎町。這裡保留了許多昭和時代的古民家，如今改建成雜貨店、二手衣著店及手作工坊。漫步於安靜狹窄的巷弄中，感受時光慢下來的獨特氛圍。",
+            "location_query": "Nakazakicho",
+            "transport_detail": "從地鐵谷町線東梅田站（鄰近梅田站）搭乘地鐵 1 站至中崎町站，出站即達。",
+            "price_level": "Low",
+            "warnings_tips": "這裡大部分是住宅區，散步與拍照時請保持輕聲細語，尊重當地居民的隱私與安寧。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "12:30",
+            "type": "meal",
+            "title": "Salon de AManTo 天人 (古民家咖啡)",
+            "description": "隱身在常春藤覆蓋的百年老屋中，由藝術家自主改建的藝文空間與咖啡店。店內充滿復古風情與慵懶氛圍，木質家具透著歷史的溫潤。在這裡享用輕食，體驗與世無爭的恬靜時光。",
+            "location_query": "Salon de AManTo",
+            "transport_detail": "自中崎町地鐵站步行約 3 分鐘即可抵達。",
+            "price_level": "Low",
+            "warnings_tips": "店內風格非常隨性，座位多為古舊沙發，非常適合安靜閱讀或放空，不建議急躁的旅人前來。",
+            "menu_recommendations": [
+              "手作香料咖哩飯 (Homemade Spice Curry)",
+              "經典焙茶 (Hojicha)",
+              "豆腐起司蛋糕 (Tofu Cheesecake)"
+            ]
+          },
+          {
+            "time": "15:30",
+            "type": "spot",
+            "title": "梅田藍天大廈 空中庭園展望台",
+            "description": "傍晚前登上梅田藍天大廈。其獨特的 360 度露天環形展望台，能讓您在微風吹拂下，俯瞰整個大阪市景與遠處的淀川。看著夕陽逐漸染紅天際，再轉為華燈初上的璀璨夜景，非常浪漫與放鬆。",
+            "location_query": "Umeda Sky Building Kuchu Teien Observatory",
+            "transport_detail": "自中崎町步行約 15-20 分鐘；或搭乘計程車約 8 分鐘直達大廈門口，減少步行疲勞。",
+            "price_level": "Mid",
+            "warnings_tips": "室外展望台風力通常較大，若覺得冷可退回 39 樓的室內觀景窗前，坐在靠窗的高腳椅上靜靜欣賞。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "18:30",
+            "type": "meal",
+            "title": "大阪 鐵板燒 季流 (Kiryu)",
+            "description": "位於大阪新阪急酒店內的頂級鐵板燒餐廳。主廚在您面前優雅地料理頂級黑毛和牛、鮑魚與龍蝦，火候掌控完美。餐廳氣氛寧靜高雅，能以慢條斯理的步調享用精緻的日式鐵板宴席。",
+            "location_query": "Teppanyaki Kiryu Hotel New Hankyu Osaka",
+            "transport_detail": "自梅田藍天大廈步行約 10 分鐘，或搭乘計程車約 5 分鐘即可抵達大阪新阪急酒店。",
+            "price_level": "High",
+            "warnings_tips": "現場烹調需時，請預留 2 小時以上的用餐時間，全心沈浸在美食與主廚的精湛手藝中。",
+            "menu_recommendations": [
+              "黑毛和牛沙朗套餐 (Black Hair Wagyu Sirloin Course)",
+              "鐵板活鮑魚 (Live Abalone on Teppan)",
+              "經典大蒜炒飯 (Signature Garlic Rice)"
+            ]
+          }
+        ]
+      },
+      {
+        "day_index": 4,
+        "date": "2026-09-13",
+        "city": "大阪",
+        "title": "海洋療癒一日遊與無壓力摩天輪",
+        "weather_forecast": "晴天，氣溫 21-27 度，海邊微風舒爽。",
+        "clothing_suggestion": "海港區風大，建議穿著防風效果佳的外套，內著舒適休閒服。攜帶太陽眼鏡以防海面反射刺眼。",
+        "timeline": [
+          {
+            "time": "10:30",
+            "type": "spot",
+            "title": "大阪海遊館 (Kaiyukan)",
+            "description": "造訪世界最大級的水族館。館內設計獨特，沿著巨大螺旋狀斜坡緩緩向下，觀賞環太平洋火山帶的海洋生態。最療癒的主水槽「太平洋」中有巨大的鯨鯊悠游，您可以坐在水槽旁的長椅上，看著藍色世界放空半小時，極具療癒感。",
+            "location_query": "Osaka Aquarium Kaiyukan",
+            "transport_detail": "從難波站搭乘地鐵御堂筋線至本町站，轉乘中央線至大阪港站，出站後步行約 5 分鐘。",
+            "price_level": "Mid",
+            "warnings_tips": "為避開現場購票人潮並保持慢節奏，強烈建議提前在網路上預約指定入場時間的電子門票。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "13:30",
+            "type": "meal",
+            "title": "築港麵工房 (Chikko Menkobo)",
+            "description": "位於海遊館附近，由明治時代紅磚倉庫改建而成的復古風手打烏龍麵店。店內挑高開闊，氛圍放鬆。這裡的烏龍麵使用天然高湯製作，口感 Q 彈，搭配鬆軟的炸天婦羅，是簡單卻極致美味的享受。",
+            "location_query": "Chikko Menkobo Osaka",
+            "transport_detail": "自海遊館步行約 5 分鐘即可抵達。",
+            "price_level": "Low",
+            "warnings_tips": "午餐時間人潮可能較多，因不設趕人限制，可以稍微避開 12 點正中午，下午 1 點半左右前來用餐最為悠閒。",
+            "menu_recommendations": [
+              "藥膳咖哩烏龍麵 (Medicinal Curry Udon)",
+              "海老天婦羅烏龍麵 (Shrimp Tempura Udon)"
+            ]
+          },
+          {
+            "time": "15:00",
+            "type": "spot",
+            "title": "天保山大摩天輪",
+            "description": "飽餐後，散步至旁邊的天保山大摩天輪。搭乘一圈約 15 分鐘，隨著纜車緩緩升空，可將大阪港、明石海峽大橋及遠方的關西機場盡收眼底。車廂內配有空調，環境安靜舒適，非常適合兩人在空中享受私密的放鬆時光。",
+            "location_query": "Tempozan Giant Ferris Wheel",
+            "transport_detail": "自築港麵工房步行約 3 分鐘即達摩天輪入口。",
+            "price_level": "Low",
+            "warnings_tips": "摩天輪設有「全透明水晶車廂」和「一般車廂」。若想體驗刺激與無死角美景可選透明車廂，但排隊時間可能較長；若想快速休息，建議直接選擇一般車廂。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "18:00",
+            "type": "meal",
+            "title": "難波 鳥喜 (Toriyoshi) 頂級燒鳥",
+            "description": "返回難波，晚餐安排在日本頂級的燒鳥（烤雞肉串）專門店。主廚選用優質的國產地雞，使用備長炭細心慢火炭烤。店內裝潢現代優雅、排煙良好，與一般吵雜的居酒屋截然不同，讓您可以一串配一口清酒，在微醺中結束放鬆的一天。",
+            "location_query": "Toriyoshi Namba Osaka",
+            "transport_detail": "自大阪港站搭乘地鐵中央線至本町站，轉御堂筋線回難波站。步行前往餐廳。",
+            "price_level": "High",
+            "warnings_tips": "餐廳座位多為板前吧台席，能直接欣賞烤手技藝。建議提早預訂，並建議點選主廚搭配套餐（Omakase）省去點單煩惱。",
+            "menu_recommendations": [
+              "主廚特選燒鳥 7 串套餐 (Omakase Yakitori 7- skewers Course)",
+              "炭烤雞肉丸 (Tsukune / Chicken Meatball with Egg Yolk)",
+              "特製雞湯拉麵 (Chicken Broth Ramen)"
+            ]
+          }
+        ]
+      },
+      {
+        "day_index": 5,
+        "date": "2026-09-14",
+        "city": "大阪",
+        "title": "中之島水岸慢活與梅田空中夕陽",
+        "weather_forecast": "初秋舒適的晴朗天氣，氣溫約 22-28 度，微風徐徐適合戶外漫步。",
+        "clothing_suggestion": "建議穿著舒適的休閒服裝，搭配一件薄針織衫或襯衫外套，方便應對傍晚的涼風。",
+        "timeline": [
+          {
+            "time": "10:30",
+            "type": "spot",
+            "title": "中之島公園與大阪市中央公會堂",
+            "description": "避開早晨的人潮，悠閒地散步至中之島公園。這裡坐落於堂島川與土佐堀川之間，有著優雅的洋式紅磚建築「大阪市中央公會堂」。在河畔綠地散步，感受都市綠洲的寧靜與悠閒。",
+            "location_query": "Nakanoshima Park Osaka",
+            "transport_detail": "從難波站搭乘地鐵御堂筋線至「淀屋橋站」，步行約 5 分鐘即可抵達。",
+            "price_level": "Low",
+            "warnings_tips": "公園內步道平緩好走，非常適合拍照，建議慢下腳步細細欣賞河岸風光。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "12:00",
+            "type": "meal",
+            "title": "GARB weeks",
+            "description": "位於中之島公園內的超人氣河畔義式餐廳。擁有開闊的戶外露台席位，一邊欣賞河景一邊享用現烤的拿坡里窯烤披薩與義大利麵，氣氛極其放鬆。",
+            "location_query": "GARB weeks Osaka",
+            "transport_detail": "位於中之島公園內，從中央公會堂步行約 3 分鐘。",
+            "price_level": "Mid",
+            "warnings_tips": "如果天氣晴朗，強烈推薦選擇露台座位（Terrace seats），能享受到最棒的水岸微風。",
+            "menu_recommendations": [
+              "招牌拿坡里窯烤披薩 (Margherita Pizza)",
+              "季節食材義大利麵",
+              "午間限定套餐"
+            ]
+          },
+          {
+            "time": "14:30",
+            "type": "spot",
+            "title": "五感 北浜本館 (Gokan Kitahama)",
+            "description": "位於大正時代歷史建築內的高級洋菓子沙龍。一樓為糕點販售區，二樓則是優雅的挑高茶沙龍。服務人員會端上裝滿精緻蛋糕的小盤供您親自挑選，搭配現泡紅茶，享受極致奢華的貴婦下午茶。",
+            "location_query": "Gokan Kitahama",
+            "transport_detail": "從 GARB weeks 跨過難波橋，步行約 5 分鐘即可抵達北濱區。",
+            "price_level": "Mid",
+            "warnings_tips": "內用通常需要排隊，建議抵達後先至二樓登記候位。等待期間可以在一樓挑選伴手禮。",
+            "menu_recommendations": [
+              "檸檬蛋糕 (Cacaoier)",
+              "大米蛋糕捲 (Gokan Roll)",
+              "大吉嶺紅茶"
+            ]
+          },
+          {
+            "time": "17:30",
+            "type": "spot",
+            "title": "梅田藍天大廈 空中庭園展望台",
+            "description": "傍晚時分前往梅田藍天大廈。乘著充滿未來感的透明電梯直達 173 公尺高的露天展望台，360 度俯瞰整個大阪灣與市區。此時正是夕陽西下、華燈初上的魔幻時刻，景色極為壯觀迷人。",
+            "location_query": "Umeda Sky Building Kuchu Teien Observatory",
+            "transport_detail": "從北濱站搭乘地鐵堺筋線至「南森町站」，轉乘谷町線至「東梅田站」，再步行約 12 分鐘至藍天大廈。",
+            "price_level": "Mid",
+            "warnings_tips": "頂樓為全露天設計，傍晚風大會有些許涼意，建議穿上備用外套。建議提早 30 分鐘抵達以搶佔欣賞落日的絕佳位置。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "19:30",
+            "type": "meal",
+            "title": "神戶牛 Ishida (梅田店)",
+            "description": "在專屬主廚的桌邊服務下，享用頂級的神戶牛鐵板燒。主廚精湛的手藝將和牛的鮮甜多汁完美呈現。店內氛圍優雅安靜，非常適合在旅程倒數第二晚進行浪漫、悠閒的奢華晚餐。",
+            "location_query": "Kobe Beef Ishida Umeda",
+            "transport_detail": "從梅田藍天大廈步行約 10 分鐘即可抵達位於梅田站附近的餐廳。",
+            "price_level": "High",
+            "warnings_tips": "這是一家極受歡迎的頂級餐廳，強烈建議提前透過官方網站或代訂平台預約席位。",
+            "menu_recommendations": [
+              "神戶牛沙朗套餐 (Kobe Beef Sirloin Course)",
+              "鐵板大蒜炒飯 (Garlic Rice)",
+              "特選海鮮拼盤"
+            ]
+          }
+        ]
+      },
+      {
+        "day_index": 6,
+        "date": "2026-09-15",
+        "city": "大阪",
+        "title": "法善寺懷舊散策與難波綠意採購・返台",
+        "weather_forecast": "晴朗晴空，氣溫 21-27 度，溫暖而舒適，適合最後的伴手禮採購與登機。",
+        "clothing_suggestion": "穿著便於穿脫的休閒服飾與好走的鞋子，方便在機場走動及機艙內的舒適度。",
+        "timeline": [
+          {
+            "time": "10:00",
+            "type": "spot",
+            "title": "法善寺橫丁",
+            "description": "早晨的法善寺橫丁散發著靜謐的昭和風情。石板小徑兩旁是傳統的小料亭與茶屋。來到著名的「水掛不動尊」前，舀水澆灌在長滿青苔的佛像上，祈求旅途平安與身體健康，感受難得的幽靜氛圍。",
+            "location_query": "Hozenji Yokocho Osaka",
+            "transport_detail": "從難波的住宿飯店步行前往，約 5-10 分鐘內即可抵達。",
+            "price_level": "Low",
+            "warnings_tips": "清晨至上午的遊客極少，是拍照與感受老大阪情懷的最佳時機。請保持安靜，尊重當地的參拜儀軌。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "11:30",
+            "type": "meal",
+            "title": "松阪牛燒肉 M (法善寺橫丁店)",
+            "description": "午餐選在法善寺橫丁內的和風燒肉店。店家引進整隻松阪牛，提供多個珍稀部位。午間套餐價格相對親民，卻能享受到頂級松阪牛入口即化的柔嫩口感，為這趟大阪美食之旅畫下完美句點。",
+            "location_query": "Matsusaka Gyu Yakiniku M Hozenji Yokocho",
+            "transport_detail": "位於法善寺橫丁內，參拜完後步行 1 分鐘內即可抵達。",
+            "price_level": "High",
+            "warnings_tips": "雖然是中午，但因座位有限，仍建議提前預約，或在開店前半小時抵達排隊。",
+            "menu_recommendations": [
+              "松阪牛午間精選套餐 (Matsusaka Beef Lunch Course)",
+              "松阪牛炙燒握壽司"
+            ]
+          },
+          {
+            "time": "13:30",
+            "type": "spot",
+            "title": "難波 Parks (Namba Parks)",
+            "description": "這是一座將斜坡綠地與購物完美結合的未來感商場。在這裡可以一邊漫步於頂樓的梯田花園，一邊物色最後的日系伴手禮。非常適合在上飛機前進行最後的悠閒採購，放慢節奏，不急不徐。",
+            "location_query": "Namba Parks",
+            "transport_detail": "從法善寺橫丁步行約 8 分鐘即可抵達與難波站相連的 Namba Parks。",
+            "price_level": "Mid",
+            "warnings_tips": "商場提供免稅服務，若有大件行李，可先暫存在難波站的寄物櫃，採購完後直接取行李前往機場。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "15:30",
+            "type": "transport",
+            "title": "南海電鐵特急 Rapi:t (難波站至關西機場)",
+            "description": "前往南海難波站，搭乘擁有獨特復古藍色鐵甲外觀的「特急 Rapi:t」列車。寬敞、舒適且有專門行李放置區，只需約 38 分鐘即可直達關西國際機場，既優雅又準時。",
+            "location_query": "Namba Station",
+            "transport_detail": "從 Namba Parks 直接步行至南海難波站，搭乘特急 Rapi:t 列車。",
+            "price_level": "Mid",
+            "warnings_tips": "建議提前在網路上預約特急券以確保舒適的對號座位。乘車前請再次確認乘車月台。",
+            "menu_recommendations": []
+          },
+          {
+            "time": "16:30",
+            "type": "flight",
+            "title": "關西國際機場與登機準備",
+            "description": "抵達關西國際機場第一航廈。辦理登機與行李託運手續。過關後，可以在免稅店補貨最後的日本限定點心（如白色戀人、Royce生巧克力、東京香蕉等）。在候機室一邊休息一邊整理照片，回味這 6 天充實而悠閒的大阪之旅。",
+            "location_query": "Kansai International Airport",
+            "transport_detail": "搭乘特急 Rapi:t 抵達關西機場站後，步行 3 分鐘即可到達航廈大廳。",
+            "price_level": "Low",
+            "warnings_tips": "關西機場免稅店常有排隊人潮，請預留充足的時間進行最後採購。確認好登機門位置與登機時間。",
+            "menu_recommendations": []
+          }
+        ]
+      }
+    ]
+  },
+  "travelerNames": [
+    "旅伴 A",
+    "旅伴 B"
+  ],
+  "expenses": [
+    {
+      "id": "1788002367211",
+      "dayIndex": 1,
+      "timelineIndex": 1,
+      "item": "拉麵",
+      "category": "美食",
+      "amount": 3000,
+      "payer": "旅伴 A",
+      "splitters": [
+        "旅伴 A",
+        "旅伴 B"
+      ],
+      "note": "",
+      "currencyCode": "JPY",
+      "exchangeRate": 0.21
+    }
+  ],
+  "currencySettings": {
+    "rate": 0.21,
+    "symbol": "¥",
+    "code": "JPY"
+  }
+}

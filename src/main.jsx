@@ -37,14 +37,13 @@ import {
   MoreHoriz,
   Restaurant,
   Today,
-  Work,
   Attractions,
   Train,
   Coffee,
   CheckCircle,
   WarningAmber,
 } from "@mui/icons-material";
-import { days, initialTodos, reservations, trip } from "./tripData";
+import { days, initialTodos, reservations, trip } from "./data/tripData";
 import "./index.css";
 
 const theme = createTheme({
@@ -86,7 +85,6 @@ const theme = createTheme({
 const icons = {
   flight: Flight,
   hotel: Hotel,
-  work: Work,
   activity: Attractions,
   restaurant: Restaurant,
   transport: Train,
